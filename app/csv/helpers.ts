@@ -61,3 +61,24 @@ export async function fetchCSVToJSON(url: string) {
     }
   }
 }
+
+/**
+ * Converts CSV to JSON
+ * @param dataContent CSV data
+ * @returns JSON data
+ */
+export function convertCSVtoJSON(dataContent: any) {
+  var results = [] as any[];
+  if (dataContent && dataContent.length > 0) {
+    let columnNames = Object.keys(dataContent[0]);
+    dataContent.forEach((row: any) => {
+      let obj = {} as any;
+      for (let i = 0; i < columnNames.length; i++) {
+        let value = row[columnNames[i]];
+        obj[columnNames[i]] = value;
+      }
+      results.push(obj);
+    });
+  }
+  return JSON.stringify({ results }, null, 2);
+}
