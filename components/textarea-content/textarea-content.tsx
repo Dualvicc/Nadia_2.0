@@ -16,7 +16,7 @@ export function TextAreaContent({
   rows = 32,
 }: TextAreaProps) {
   return (
-    <div className="grid w-full gap-1.5">
+    <div className="grid w-full gap-1.5 mb-8">
       <Label htmlFor={`${type}-data`} className="font-semibold text-lg">
         {title}
       </Label>
