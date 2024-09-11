@@ -1,4 +1,5 @@
 import { ChangeEventHandler } from "react";
+import { Input } from "@/components/ui/input";
 
 /**
  * Displays an input text
@@ -22,7 +23,7 @@ export default function InputTextWebhook({
   onChange: ChangeEventHandler<HTMLInputElement> | undefined;
 }) {
   return (
-    <input
+    <Input
       type="text"
       id={id}
       name={id}

@@ -1,4 +1,5 @@
 import { ChangeEventHandler } from "react";
+import { Input } from "@/components/ui/input";
 
 /**
  * Displays an input text
@@ -21,7 +22,7 @@ export default function InputTextSearcher({
   value: string;
 }) {
   return (
-    <input
+    <Input
       type="text"
       id={id}
       placeholder={placeholder}
