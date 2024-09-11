@@ -1,4 +1,5 @@
 import { FC, SVGProps } from "react";
+import { Button } from '@/components/ui/button';
 
 type ButtonProps = {
   type?: "button" | "submit" | "reset";
@@ -30,13 +31,13 @@ export default function IconButton({
 
   return (
     <>
-      <button
+      <Button
         type={type}
         className={`flex font-medium rounded-md text-sm px-2.5 py-2.5 focus:outline-none ${colorVariants[color]}`}
         onClick={onClick}
       >
         <Icon className="w-6" />
-      </button>
+      </Button>
     </>
   );
 }
