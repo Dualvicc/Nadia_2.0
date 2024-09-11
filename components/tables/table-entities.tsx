@@ -93,6 +93,32 @@ export default function TableEntities({
               </TableCell>
               <TableCell className="border border-gray-300 px-2">
                 <div className="flex justify-center gap-2 py-2">
+                  <Modal
+                    openFunction={handleOpenModalCreateSubscription(entity)}
+                    iconBtnModal={DocumentPlusIcon}
+                    iconBtnModalColor="blue"
+                    actionButton1={{
+                      function: handleCloseModalCreateSubscription,
+                      title: "Create subscription",
+                    }}
+                    message={message}
+                    title="Create subscription"
+                  />
+                  <Modal
+                    openFunction={handleOpenModalDeleteEntity(entity)}
+                    iconBtnModal={TrashIcon}
+                    iconBtnModalColor="red"
+                    actionButton1={{
+                      function: handleCloseModalDeleteEntity,
+                      title: "Delete entity",
+                    }}
+                    actionButton2={{
+                      function: handleCloseModalDeleteEntityWithSubscriptions,
+                      title: "Delete entity and subscription",
+                    }}
+                    message={message}
+                    title="Delete entity and subscription"
+                  />
                 </div>
               </TableCell>
             </TableRow>

@@ -81,6 +81,17 @@ export default function TableSubscriptions({ data }: { data: any }) {
                 {subscription.notification.lastNotification}
               </TableCell>
               <TableCell className="border border-gray-300 px-2 flex justify-center py-2">
+                <Modal
+                  openFunction={handleOpenModalDeleteSubscription(subscription)}
+                  iconBtnModal={TrashIcon}
+                  iconBtnModalColor="blue"
+                  actionButton1={{
+                    function: handleCloseModalDeleteSubscription,
+                    title: "Delete subscription",
+                  }}
+                  message={message}
+                  title="Delete subscription"
+                />
               </TableCell>
             </TableRow>
           ))}
