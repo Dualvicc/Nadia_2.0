@@ -6,21 +6,22 @@ import { env } from "@/env";
 import { jwtDecode } from "jwt-decode";
 import { encrypt } from "@/lib/encryption";
 
-// Consider using a more specific type for decoded JWT
-type DecodedToken = {
-  realm_access?: {
-    roles?: string[];
-  };
-  // Add other expected properties
-};
-
 declare module "next-auth/jwt" {
   interface JWT {
     access_token?: string;
     id_token?: string;
     refresh_token?: string;
     expires_at?: number;
-    decoded?: DecodedToken;
+    decoded?: any;
+    error?: string;
+  }
+}
+
+declare module "next-auth" {
+  interface Session {
+    access_token?: string;
+    id_token?: string;
+    roles?: string[];
     error?: string;
   }
 }
@@ -66,16 +67,14 @@ const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
-        return {
-          ...token,
-          decoded: account.access_token
-            ? jwtDecode(account.access_token)
-            : undefined,
-          id_token: account.id_token,
-          access_token: account.access_token,
-          refresh_token: account.refresh_token,
-          expires_at: account.expires_at,
-        };
+        token.decoded = account.access_token
+          ? jwtDecode(account.access_token)
+          : undefined;
+        token.id_token = account.id_token;
+        token.access_token = account.access_token;
+        token.refresh_token = account.refresh_token;
+        token.expires_at = account.expires_at;
+        return token;
       }
 
       const bufferTime = 60 * 1000;
@@ -93,15 +92,14 @@ const authOptions: AuthOptions = {
       }
     },
     async session({ session, token }) {
-      return {
-        ...session,
-        access_token: token.access_token
-          ? encrypt(token.access_token)
-          : undefined,
-        id_token: token.id_token ? encrypt(token.id_token) : undefined,
-        roles: token.decoded?.realm_access?.roles ?? [],
-        error: token.error,
-      };
+      // Send properties to the client
+      session.access_token = token.access_token
+        ? encrypt(token.access_token)
+        : undefined;
+      session.id_token = token.id_token ? encrypt(token.id_token) : undefined;
+      session.roles = token.decoded.realm_access?.roles;
+      session.error = token.error;
+      return session;
     },
   },
 };
