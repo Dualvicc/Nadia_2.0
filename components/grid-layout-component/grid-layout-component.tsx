@@ -1,5 +1,8 @@
 import React from "react";
-import { ChartConfigType, ChartType } from "@/lib/chart-helpers";
+import {
+  ChartConfigType,
+  ChartType,
+} from "@/components/charts-components/helpers";
 import GridLayout from "react-grid-layout";
 import { WidthProvider } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
