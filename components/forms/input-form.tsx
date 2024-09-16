@@ -16,12 +16,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { apiFetch } from "@/app/apidata/helpers";
 
 const FormSchema = z.object({
   url: z.string().url(),
 });
 
-export function InputForm() {
+export function InputForm({
+  setData,
+}: {
+  setData: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -29,7 +34,10 @@ export function InputForm() {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {}
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    const apiData = await apiFetch(data.url);
+    setData(JSON.stringify(apiData, null, 2));
+  }
 
   return (
     <Form {...form}>
