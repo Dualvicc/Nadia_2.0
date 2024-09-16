@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -15,6 +15,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { InvalidData } from "@/lib/errors";
+import { createNgsiLdJson, isJSON } from "@/lib/client/helpers";
+
+type DataExtractFormProps = {
+  apiData: string;
+  setApiData: React.Dispatch<React.SetStateAction<string>>;
+};
 
 const arrRegex = /^\w+(,\w+)*$/;
 
@@ -31,9 +38,7 @@ const FormSchema = z.object({
   }),
 });
 
-export function DataExtractForm({ data }: { data: string }) {
-  const [ngsiData, setNgsiData] = useState<string>("");
-
+export function DataExtractForm({ apiData, setApiData }: DataExtractFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -44,7 +49,26 @@ export function DataExtractForm({ data }: { data: string }) {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {}
+  function onSubmit(data: z.infer<typeof FormSchema>) {
+    try {
+      const valuesArr: string[] = data.values.split(",");
+      if (!data)
+        throw new InvalidData(
+          "No data from which information can be extracted"
+        );
+
+      if (!isJSON(apiData))
+        throw new InvalidData(
+          "This data is not a JSON. Not posible to extracted information"
+        );
+
+      const ngsi = createNgsiLdJson(data, valuesArr, JSON.parse(apiData));
+      setApiData(JSON.stringify(ngsi, null, 2));
+    } catch (e) {
+      if (e instanceof InvalidData) setApiData(e.message);
+    }
+  }
+
   return (
     <Form {...form}>
       <form
