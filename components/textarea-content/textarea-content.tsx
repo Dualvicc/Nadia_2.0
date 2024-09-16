@@ -3,7 +3,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 type TextAreaProps = {
-  title: string;
+  title?: string;
+  placeholder?: string;
   data?: string;
   type: string;
   rows?: number;
@@ -11,6 +12,7 @@ type TextAreaProps = {
 
 export function TextAreaContent({
   title,
+  placeholder,
   data,
   type,
   rows = 32,
@@ -22,7 +24,7 @@ export function TextAreaContent({
       </Label>
       <Textarea
         className="resize-none bg-white"
-        placeholder="Api data..."
+        placeholder={placeholder}
         id={`${type}-data`}
         value={data}
         rows={rows}
