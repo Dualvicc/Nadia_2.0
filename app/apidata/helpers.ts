@@ -1,4 +1,4 @@
-import { InvalidURL, ConnectionError } from "@/lib/errors-helpers";
+import { InvalidURL, ConnectionError } from "@/lib/errors";
 
 /**
  * Fetches API contents and converts to JSON data

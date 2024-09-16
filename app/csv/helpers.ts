@@ -1,4 +1,4 @@
-import { ConnectionError, InvalidData, InvalidURL } from "@/lib/errors-helpers";
+import { ConnectionError, InvalidData, InvalidURL } from "@/lib/errors";
 import Papa from "papaparse";
 
 /**
