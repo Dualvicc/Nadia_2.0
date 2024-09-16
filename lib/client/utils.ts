@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { RectangleGroupIcon, TagIcon } from "@heroicons/react/24/solid";
-import { WebhookURLSchema } from "@/lib/types";
+import { WebhookURLSchema } from "@/lib/client/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))

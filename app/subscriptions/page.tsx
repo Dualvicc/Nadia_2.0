@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import TableSubscriptions from "@/components/tables/table-subscriptions";
 import Dropdown from "@/components/dropdown/dropdown";
-import { getSubscriptions } from "@/lib/dataFetch";
+import { getSubscriptions } from "@/app/entities/helpers";
 import InputTextSearcher from "@/components/input-components/input-text-searcher";
-import { searchDataSubscriptions } from "@/lib/utils";
+import { searchDataSubscriptions } from "@/lib/client/utils";
 
 export default function Subscriptions() {
   const [dataApi, setDataApi] = useState<Array<any>>([]);

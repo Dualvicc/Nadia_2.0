@@ -3,7 +3,7 @@
 import { ErrorText } from "@/components/error-text/error-text";
 import InputTextWebhook from "@/components/input-components/input-text-webhook";
 import { useState } from "react";
-import { isStringBlank, validateInputText } from "@/lib/utils";
+import { isStringBlank, validateInputText } from "@/lib/client/utils";
 
 export function WebhookComponent() {
   const [webhookValue, setWebhookValue] = useState<string>("");

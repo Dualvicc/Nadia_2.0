@@ -1,5 +1,5 @@
 import { TrashIcon } from "@heroicons/react/24/solid";
-import { deleteSubscription } from "@/lib/dataFetch";
+import { deleteSubscription } from "@/app/entities/helpers";
 import { Modal } from "@/components/modal/modal";
 import {
   Table,

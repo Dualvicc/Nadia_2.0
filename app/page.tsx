@@ -1,7 +1,7 @@
 "use client";
 
 import { GridLayoutComponent } from "@/components/grid-layout-component/grid-layout-component";
-import { chartConfig } from "@/lib/chart-helpers";
+import { chartConfig } from "@/components/charts-components/helpers";
 
 export default function Home() {
   return (

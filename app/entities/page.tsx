@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import TableEntities from "@/components/tables/table-entities";
 import Dropdown from "@/components/dropdown/dropdown";
 import { WebhookComponent } from "@/components/webhook-component/webhook-component";
-import { getEntities } from "@/lib/dataFetch";
-import { searchDataEntities } from "@/lib/utils";
+import { getEntities } from "@/app/entities/helpers";
+import { searchDataEntities } from "@/lib/client/utils";
 import InputTextSearcher from "@/components/input-components/input-text-searcher";
 
 export default function Entities() {

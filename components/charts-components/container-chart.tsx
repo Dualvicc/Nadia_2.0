@@ -1,4 +1,4 @@
-import { ChartType } from "@/lib/chart-helpers";
+import { ChartType } from "@/components/charts-components/helpers";
 import React, { useRef, useEffect, useState } from "react";
 import AreaChartComponent from "./area-chart-component";
 import LineChartComponent from "./line-chart-component";

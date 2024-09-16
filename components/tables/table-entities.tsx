@@ -3,7 +3,7 @@ import {
   createSubscription,
   deleteEntity,
   deleteEntityWithSubscriptions,
-} from "@/lib/dataFetch";
+} from "@/app/entities/helpers";
 import { useState } from "react";
 import {
   Table,
