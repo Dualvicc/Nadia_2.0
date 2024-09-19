@@ -82,3 +82,22 @@ export function convertCSVtoJSON(dataContent: any) {
   }
   return JSON.stringify({ results }, null, 2);
 }
+
+/**
+ * Reads and parses a CSV file to return data contents
+ * @param file CSV file
+ * @param callback Callback function to return data
+ */
+export function parseCSV(file: File, callback: (data: any[]) => void) {
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const text = e.target?.result?.toString();
+    if (text) {
+      const parsedData = Papa.parse(text, {
+        header: true,
+      }).data;
+      callback(parsedData);
+    }
+  };
+  reader.readAsText(file);
+}
