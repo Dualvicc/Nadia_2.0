@@ -2,9 +2,11 @@
 
 import { SendData } from "@/components/buttons/send-data";
 import { DataExtractForm } from "@/components/forms/data-extract-form";
+import { InputFileCSV } from "@/components/forms/input-file-csv";
 import { InputForm } from "@/components/forms/input-form";
 import { TextAreaContent } from "@/components/textarea-content/textarea-content";
 import React, { useState } from "react";
+import { fetchCSVToJSON } from "./helpers";
 
 export default function Page() {
   const [csvData, setCsvData] = useState("");
@@ -12,7 +14,8 @@ export default function Page() {
 
   return (
     <div>
-      <InputForm setData={setCsvData} />
+      <InputForm fetch={fetchCSVToJSON} setData={setCsvData} />
+      <InputFileCSV setData={setCsvData} />
       <TextAreaContent
         title="CSV content"
         placeholder="Api data..."
