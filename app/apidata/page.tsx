@@ -5,6 +5,7 @@ import { InputForm } from "@/components/forms/input-form";
 import { TextAreaContent } from "@/components/textarea-content/textarea-content";
 import React, { useState } from "react";
 import { SendData } from "@/components/buttons/send-data";
+import { apiFetch } from "./helpers";
 
 export default function Page() {
   const [apiData, setApiData] = useState("");
@@ -12,7 +13,7 @@ export default function Page() {
 
   return (
     <div>
-      <InputForm setData={setApiData} />
+      <InputForm fetch={apiFetch} setData={setApiData} />
       <TextAreaContent
         title="Api content"
         placeholder="Api data..."

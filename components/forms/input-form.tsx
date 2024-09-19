@@ -18,15 +18,16 @@ import {
 } from "@/components/ui/form";
 import { apiFetch } from "@/app/apidata/helpers";
 
+type InputFormProps = {
+  fetch: (url: string) => Promise<any>;
+  setData: React.Dispatch<React.SetStateAction<string>>;
+};
+
 const FormSchema = z.object({
   url: z.string().url(),
 });
 
-export function InputForm({
-  setData,
-}: {
-  setData: React.Dispatch<React.SetStateAction<string>>;
-}) {
+export function InputForm({ fetch, setData }: InputFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -35,7 +36,7 @@ export function InputForm({
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    const apiData = await apiFetch(data.url);
+    const apiData = await fetch(data.url);
     setData(JSON.stringify(apiData, null, 2));
   }
 
@@ -56,7 +57,7 @@ export function InputForm({
               <FormControl>
                 <div className="flex w-full max-w-sm items-center space-x-2">
                   <Input
-                    placeholder="https://www.api.com/api"
+                    placeholder="https://www.domain.com"
                     {...field}
                     className="bg-white"
                   />
