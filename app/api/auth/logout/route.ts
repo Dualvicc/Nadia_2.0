@@ -31,19 +31,11 @@ export async function GET() {
     });
 
     if (!resp.ok) {
-      console.error(`Logout failed with status: ${resp.status}`);
-      return NextResponse.json(
-        { message: `Keycloak logout failed: ${resp.statusText}` },
-        { status: resp.status }
-      );
+      throw new Error(`Keycloak logout failed: ${resp.statusText}`);
     }
 
     return NextResponse.json({ message: "Logout successful" }, { status: 200 });
   } catch (err) {
-    console.error("Logout error:", err);
-    return NextResponse.json(
-      { message: "Internal server error during logout" },
-      { status: 500 }
-    );
+    throw new Error("Internal server error during logout");
   }
 }

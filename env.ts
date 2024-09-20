@@ -27,7 +27,6 @@ const result = envSchema.safeParse({
 });
 
 if (!result.success) {
-  console.error(result.error.format());
   throw new Error("Invalid environment variables");
 }
 const env = result.data;

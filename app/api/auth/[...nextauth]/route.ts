@@ -27,30 +27,35 @@ declare module "next-auth" {
 }
 
 async function refreshAccessToken(token: JWT) {
-  const resp = await fetch(`${env.KEYCLOAK_REFRESH_TOKEN_URL}`, {
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      client_id: env.KEYCLOAK_CLIENT_ID,
-      client_secret: env.KEYCLOAK_CLIENT_SECRET,
-      grant_type: "refresh_token",
-      refresh_token: token.refresh_token as string,
-    }),
-    method: "POST",
-  });
-  if (!resp.ok) {
-    throw new Error(`HTTP error! status: ${resp.status}`);
-  }
-  const refreshToken = await resp.json();
-  if (!resp.ok) throw refreshToken;
+  try {
+    const response = await fetch(env.KEYCLOAK_REFRESH_TOKEN_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: env.KEYCLOAK_CLIENT_ID,
+        client_secret: env.KEYCLOAK_CLIENT_SECRET,
+        grant_type: "refresh_token",
+        refresh_token: token.refresh_token as string,
+      }),
+    });
 
-  return {
-    ...token,
-    access_token: refreshToken.access_token,
-    decoded: jwtDecode(refreshToken.access_token),
-    id_token: refreshToken.id_token,
-    expires_at: Math.floor(Date.now() / 1000) + refreshToken.expires_in,
-    refresh_token: refreshToken.refresh_token,
-  };
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const refreshedTokens = await response.json();
+
+    return {
+      ...token,
+      access_token: refreshedTokens.access_token,
+      decoded: jwtDecode(refreshedTokens.access_token),
+      id_token: refreshedTokens.id_token,
+      expires_at: Math.floor(Date.now() / 1000 + refreshedTokens.expires_in),
+      refresh_token: refreshedTokens.refresh_token,
+    };
+  } catch (error) {
+    throw new Error("RefreshAccessTokenError");
+  }
 }
 
 const authOptions: AuthOptions = {
@@ -83,11 +88,9 @@ const authOptions: AuthOptions = {
       } else {
         try {
           const refreshedToken = await refreshAccessToken(token);
-          console.log("Token is refreshed.");
           return refreshedToken;
         } catch (error) {
-          console.error(error);
-          return { ...token, error: "RefreshAccessTokenError" };
+          throw new Error("RefreshAccessTokenError");
         }
       }
     },
