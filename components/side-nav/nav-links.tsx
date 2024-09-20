@@ -3,7 +3,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import { links } from "@/lib/client/nav-links-helpers";
+import { links } from "@/components/side-nav/helpers";
 
 export function NavLinks() {
   const pathname = usePathname();
