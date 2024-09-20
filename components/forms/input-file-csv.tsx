@@ -32,18 +32,20 @@ const InputFileCSVSchema = z.object({
     }, "File must be a CSV"),
 });
 
-export function InputFileCSV({
-  setData,
-}: {
-  setData: React.Dispatch<React.SetStateAction<string>>;
-}) {
+type InputFileCSVProps = {
+  setJsonData: React.Dispatch<React.SetStateAction<string>>;
+  setCsvData: React.Dispatch<React.SetStateAction<any>>;
+};
+
+export function InputFileCSV({ setJsonData, setCsvData }: InputFileCSVProps) {
   const form = useForm<z.infer<typeof InputFileCSVSchema>>({
     resolver: zodResolver(InputFileCSVSchema),
   });
 
   function onSubmit(data: z.infer<typeof InputFileCSVSchema>) {
     parseCSV(data.file, (content) => {
-      setData(convertCSVtoJSON(content));
+      setCsvData(content);
+      setJsonData(convertCSVtoJSON(content));
     });
   }
 
