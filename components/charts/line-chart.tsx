@@ -9,13 +9,13 @@ import {
   Legend,
 } from "recharts";
 
-type propsChart = {
+type ChartProps = {
   width: number;
   height: number;
   data: any;
 };
 
-var LineChartComponent = ({ width, height, data }: propsChart) => {
+var LineChartComponent = ({ width, height, data }: ChartProps) => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart

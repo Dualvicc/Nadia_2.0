@@ -1,9 +1,9 @@
-import { ChartType } from "@/components/charts-components/helpers";
+import { ChartType } from "@/components/charts/helpers";
 import React, { useRef, useEffect, useState } from "react";
-import AreaChartComponent from "./area-chart-component";
-import LineChartComponent from "./line-chart-component";
-import BarChartComponent from "./bar-chart-component";
-import PieChartComponent from "./pie-chart-component";
+import AreaChartComponent from "./area-chart";
+import LineChartComponent from "./line-chart";
+import BarChartComponent from "./bar-chart";
+import PieChartComponent from "./pie-chart";
 
 export function ChartContainer({
   type,

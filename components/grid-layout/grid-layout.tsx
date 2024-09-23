@@ -1,10 +1,10 @@
 import React from "react";
-import { ChartConfigType, ChartType } from "@/components/charts-components/helpers";
+import { ChartConfigType } from "@/components/charts/helpers";
 import GridLayout from "react-grid-layout";
 import { WidthProvider } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-import { ChartContainer } from "../charts-components/container-chart";
+import { ChartContainer } from "../charts/container-chart";
 import { salesData } from "@/mockdata";
 
 const ResponsiveGridLayout = WidthProvider(GridLayout);

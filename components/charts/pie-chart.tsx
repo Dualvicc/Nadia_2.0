@@ -2,7 +2,7 @@
 
 import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
-type propsChart = {
+type ChartProps = {
   width: number;
   height: number;
   data: any;
@@ -10,7 +10,7 @@ type propsChart = {
 
 // NOTE: Only can display one data value, if you want 2 or more, you need more pies. So, not good visually
 
-const PieChartComponent = ({ width, height, data }: propsChart) => {
+const PieChartComponent = ({ width, height, data }: ChartProps) => {
   return (
     <>
       <div style={{ width: "100%", height: "100%" }}>
