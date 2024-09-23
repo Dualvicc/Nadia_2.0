@@ -1,20 +1,12 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export async function DELETE(req: NextRequest) {
   try {
-    const { id } = req.body;
-
+    const { id } = await req.json();
     const contextBrokerURL = `${process.env.OCB_URL}/entities/${id}`;
-    const contextBrokerSubsURL =
-      "${process.env.OCB_URL}/subscriptions";
+    const contextBrokerSubsURL = `${process.env.OCB_URL}/subscriptions`;
 
-    const subscriptionRequestOptions = {
-      method: "GET",
-    };
-
+    const subscriptionRequestOptions = { method: "GET" };
     const subscriptionResponse = await fetch(
       contextBrokerSubsURL,
       subscriptionRequestOptions
@@ -28,26 +20,29 @@ export default async function handler(
 
       if (isAssociated) {
         const deleteSubscriptionUrl = `${contextBrokerSubsURL}/${subscription.id}`;
-        const deleteSubscriptionOptions = {
-          method: "DELETE",
-        };
+        const deleteSubscriptionOptions = { method: "DELETE" };
         await fetch(deleteSubscriptionUrl, deleteSubscriptionOptions);
       }
     }
 
-    const deleteEntityOptions = {
-      method: "DELETE",
-    };
-
+    const deleteEntityOptions = { method: "DELETE" };
     const response = await fetch(contextBrokerURL, deleteEntityOptions);
+
     if (response.status === 204) {
-      res
-        .status(200)
-        .json({ message: `Entity ${id} with their subscriptions deleted` });
+      return NextResponse.json(
+        { message: `Entity ${id} with their subscriptions deleted` },
+        { status: 200 }
+      );
     } else {
-      res.status(response.status).json({ message: "Something went wrong" });
+      return NextResponse.json(
+        { message: "Something went wrong" },
+        { status: response.status }
+      );
     }
   } catch (e) {
-    res.status(500).json({ error: "Internal server error" });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
