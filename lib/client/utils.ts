@@ -5,12 +5,17 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { decrypt } from "@/lib/encryption";
 
+interface Session {
+  id_token?: string;
+  access_token?: string;
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 export async function getIdToken() {
-  const session : any = await getServerSession(authOptions);
-  if (session) {
+  const session: Session | null = await getServerSession(authOptions);
+  if (session && session.id_token) {
     const idTokenDecrypted = decrypt(session.id_token);
     return idTokenDecrypted;
   }
@@ -18,8 +23,8 @@ export async function getIdToken() {
 }
 
 export async function getAccessToken() {
-  const session : any = await getServerSession(authOptions);
-  if (session) {
+  const session: Session | null = await getServerSession(authOptions);
+  if (session && session.access_token) {
     const accessTokenDecrypted = decrypt(session.access_token);
     return accessTokenDecrypted;
   }
