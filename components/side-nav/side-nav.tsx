@@ -1,6 +1,7 @@
 import { GlobeAltIcon } from "@heroicons/react/24/solid";
 import { NavLinks } from "./nav-links";
-
+import { LogoutButton } from "@/components/auth/logoutButton";
+import { User } from "@/components/auth/user";
 /**
  * Displays a side navigation bar
  * @returns A side navigation bar
@@ -12,7 +13,9 @@ export default function SideNav() {
         <GlobeAltIcon className="w-8" />
         <p className="font-semibold">NADIA DTI</p>
       </div>
+      <User />
       <NavLinks />
+      <LogoutButton />
     </div>
   );
 }

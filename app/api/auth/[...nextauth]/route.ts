@@ -4,7 +4,7 @@ import type { AuthOptions } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import { env } from "@/env";
 import { jwtDecode } from "jwt-decode";
-import { encrypt } from "@/lib/encryption";
+import { encrypt } from "@/lib/server/encryption";
 
 declare module "next-auth/jwt" {
   interface JWT {
