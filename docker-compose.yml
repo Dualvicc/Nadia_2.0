@@ -1,0 +1,11 @@
+services:
+  frontend:
+    build: ./
+    ports:
+      - 8085:3000
+    networks:
+      - dd_network
+
+networks:
+  dd_network:
+    driver: bridge
