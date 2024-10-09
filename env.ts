@@ -13,6 +13,7 @@ const envSchema = z.object({
   NEXTAUTH_SECRET: z.string(),
   KEYCLOAK_END_SESSION_URL: z.string(),
   KEYCLOAK_REFRESH_TOKEN_URL: z.string(),
+  OCB_URL: z.string(),
 });
 
 const result = envSchema.safeParse({
@@ -24,6 +25,7 @@ const result = envSchema.safeParse({
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
   KEYCLOAK_END_SESSION_URL: process.env.KEYCLOAK_END_SESSION_URL,
   KEYCLOAK_REFRESH_TOKEN_URL: process.env.KEYCLOAK_REFRESH_TOKEN_URL,
+  OCB_URL: process.env.OCB_URL,
 });
 
 if (!result.success) {
