@@ -49,20 +49,24 @@ export function Modal({
   actionColorBtn = "blue",
   title = "",
 }: ModalProps) {
+  const [open, setOpen] = useState(true);
 
   useEffect(() => {
     openFunction();
-  });
+    setOpen(false);
+  }, [openFunction]);
 
   function handleCloseModal2() {
     if (onClose2) {
       onClose2.function();
+      setOpen(false);
     }
   }
 
   function handleCloseModal3() {
     if (onClose3) {
       onClose3.function();
+      setOpen(false);
     }
   }
 
@@ -73,7 +77,7 @@ export function Modal({
 
   return (
     <>
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
         <IconButton
           icon={iconBtnModal}
