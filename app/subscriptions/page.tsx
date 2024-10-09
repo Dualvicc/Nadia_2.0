@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import TableSubscriptions from "@/components/tables/table-subscriptions";
 import Dropdown from "@/components/dropdown/dropdown";
-import { getSubscriptions } from "@/app/entities/helpers";
 import InputTextSearcher from "@/components/input-components/input-text-searcher";
 import { searchDataSubscriptions } from "@/lib/client/utils";
+import { getSubscriptions } from "@/app/subscriptions/helpers";
 
 export default function Subscriptions() {
   const [dataApi, setDataApi] = useState<Array<any>>([]);
@@ -20,12 +20,12 @@ export default function Subscriptions() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getSubscriptions();
-      const jsondata = await data?.json();
-      setDataApi(jsondata);
+      const jsondata = await getSubscriptions();
+      setDataApi((Array.isArray(jsondata) ? jsondata : [jsondata]));
     };
+
     fetchData();
-  });
+  }, []);
 
   if (sort === "ID") {
     dataApi.sort((a: any, b: any) => a.id.localeCompare(b.id));

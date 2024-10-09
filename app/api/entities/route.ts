@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { env } from "@/env";
+import axios from "axios";
+import https from "https";
 
 interface Subscription {
   id: string;
@@ -12,19 +15,16 @@ interface DeleteEntityRequest {
   deleteSubscriptions?: boolean;
 }
 
+const agent = new https.Agent({ rejectUnauthorized: false });
+
 export async function GET() {
   try {
-    const contextBrokerUrl = `${process.env.OCB_URL}/entities/`;
-    const requestOptions = { method: "GET" };
+    const contextBrokerUrl = `${env.OCB_URL}/entities/`;
 
-    const response = await fetch(contextBrokerUrl, requestOptions);
-    const data = await response.json();
-    return NextResponse.json(data, { status: 200 });
+    const response = await axios.get(contextBrokerUrl, { httpsAgent: agent });
+    return NextResponse.json(response.data, { status: 200 });
   } catch (e) {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -33,14 +33,10 @@ export async function DELETE(req: NextRequest) {
     const { id, deleteSubscriptions }: DeleteEntityRequest = await req.json();
 
     if (deleteSubscriptions) {
-      const contextBrokerSubsURL = `${process.env.OCB_URL}/subscriptions/`;
-      const subscriptionRequestOptions = { method: "GET" };
-      const subscriptionResponse = await fetch(
-        contextBrokerSubsURL,
-        subscriptionRequestOptions
-      );
+      const contextBrokerSubsURL = `${env.OCB_URL}/subscriptions/`;
+      const subscriptionResponse = await axios.get(contextBrokerSubsURL, { httpsAgent: agent });
 
-      const subscriptions: Subscription[] = await subscriptionResponse.json();
+      const subscriptions: Subscription[] = await subscriptionResponse.data.json();
 
       for (const subscription of subscriptions) {
         const isAssociated = subscription.subject.entities.some(
@@ -49,15 +45,13 @@ export async function DELETE(req: NextRequest) {
 
         if (isAssociated) {
           const deleteSubscriptionUrl = `${contextBrokerSubsURL}${subscription.id}`;
-          const deleteSubscriptionOptions = { method: "DELETE" };
-          await fetch(deleteSubscriptionUrl, deleteSubscriptionOptions);
+          await axios.delete(deleteSubscriptionUrl, { httpsAgent: agent });
         }
       }
     }
 
-    const contextBrokerURL = `${process.env.OCB_URL}/entities/${id}`;
-    const deleteEntityOptions = { method: "DELETE" };
-    const response = await fetch(contextBrokerURL, deleteEntityOptions);
+    const contextBrokerURL = `${env.OCB_URL}/entities/${id}`;
+    const response = await axios.delete(contextBrokerURL, { httpsAgent: agent });
 
     if (response.status === 204) {
       return NextResponse.json(

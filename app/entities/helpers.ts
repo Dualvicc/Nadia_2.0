@@ -3,13 +3,14 @@
  * @returns Entity data
  */
 export async function getEntities() {
-  const url = `http://${location.hostname}:3004/api/getentities`;
-
+  const url = `/api/entities`;
   try {
     const response = await fetch(url);
 
     if (!response.ok) throw new Error("Problems with the context broker");
-    return response;
+
+    const jsondata = await response.json();
+    return jsondata;
   } catch (error) {
     if (error instanceof Error) throw new Error("Server problems");
   }
@@ -25,7 +26,7 @@ export async function createSubscription(
   entity: any,
   valueNotificationWebhookUrl: string
 ) {
-  const url = `http://${location.hostname}:3004/api/createsubscription`;
+  const url = `/api/subscriptions`;
 
   const subscriptionPayload = {
     description: `Notify me of all ${entity.id} status changes`,
@@ -62,11 +63,11 @@ export async function createSubscription(
  * @returns A response of entity data body for the backend
  */
 export async function deleteEntity(id: string) {
-  const url = `http://${location.hostname}:3004/api/deleteentity`;
+  const url = `/api/entities`;
 
   try {
     const response = await fetch(url, {
-      method: "POST",
+      method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
@@ -88,6 +89,7 @@ export async function deleteEntity(id: string) {
  * @returns A response of entity data body for the backend
  */
 export async function deleteEntityWithSubscriptions(id: string) {
+  // TODO: Handle the entity to delete like deleteEntity function from above
   const url = `http://${location.hostname}:3004/api/deleteentitywithsubscriptions`;
 
   try {

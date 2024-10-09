@@ -40,7 +40,7 @@ export default function TableEntities({
   function handleOpenModalDeleteEntity(entity: any) {
     return () => {
       setMessage(`Do you wish to delete this entity: ${entity.id}?`);
-      setEntityObj(entity.id);
+      setEntityObj(entity);
     };
   }
 

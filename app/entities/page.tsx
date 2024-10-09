@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import TableEntities from "@/components/tables/table-entities";
 import Dropdown from "@/components/dropdown/dropdown";
 import { WebhookComponent } from "@/components/webhook-component/webhook-component";
-import { getEntities } from "@/app/entities/helpers";
 import { searchDataEntities } from "@/lib/client/utils";
 import InputTextSearcher from "@/components/input-components/input-text-searcher";
+import { getEntities } from "@/app/entities/helpers";
 
 export default function Entities() {
   const [dataApi, setDataApi] = useState<Array<any>>([]);
@@ -19,12 +19,12 @@ export default function Entities() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getEntities();
-      const jsondata = await data?.json();
-      setDataApi(jsondata);
+      const jsondata = await getEntities();
+      setDataApi((Array.isArray(jsondata) ? jsondata : [jsondata]));
     };
+
     fetchData();
-  });
+  }, []);
 
   if (sort === "ID") {
     dataApi.sort((a: any, b: any) => a.id.localeCompare(b.id));
@@ -81,12 +81,12 @@ export default function Entities() {
       {valueSearch.length === 0 ? (
         <TableEntities
           data={dataApi}
-          webhookURL={"http://www.anysolution.org:5050"}
+          webhookURL={"https://www.anysolution.org:5050"}
         />
       ) : (
         <TableEntities
           data={dataFiltered}
-          webhookURL={"http://www.anysolution.org:5050"}
+          webhookURL={"https://www.anysolution.org:5050"}
         />
       )}
     </main>

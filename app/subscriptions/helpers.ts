@@ -3,13 +3,15 @@
  * @returns Subscription data
  */
 export async function getSubscriptions() {
-  const url = `http://${location.hostname}:3004/api/getsubscriptions`;
+  const url = `/api/subscriptions`;
 
   try {
     const response = await fetch(url);
 
     if (!response.ok) throw new Error("Problems with the context broker");
-    return response;
+
+    const jsondata = await response.json();
+    return jsondata;
   } catch (error) {
     if (error instanceof Error) throw new Error("Server problems");
   }
@@ -21,11 +23,11 @@ export async function getSubscriptions() {
  * @returns A response of subscription data body for the backend
  */
 export async function deleteSubscription(id: string) {
-  const url = `http://${location.hostname}:3004/api/deletesubscription`;
+  const url = `/api/subscriptions`;
 
   try {
     const response = await fetch(url, {
-      method: "POST",
+      method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
@@ -33,7 +35,7 @@ export async function deleteSubscription(id: string) {
     });
 
     if (!response.ok)
-      throw new Error(`Entity ${id} was not deleted successfully`);
+      throw new Error(`Subscription ${id} was not deleted successfully`);
 
     return response;
   } catch (error) {
