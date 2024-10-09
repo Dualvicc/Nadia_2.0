@@ -1,6 +1,6 @@
 import { decrypt } from "../server/encryption";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/auth";
 import { z } from "zod";
 import type { Session } from "next-auth";
 

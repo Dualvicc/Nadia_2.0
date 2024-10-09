@@ -1,4 +1,4 @@
-import { authOptions } from "../[...nextauth]/route";
+import { authOptions } from "@/auth";
 import { getServerSession } from "next-auth";
 import { getIdToken } from "@/lib/server/utils";
 import { env } from "@/env";
