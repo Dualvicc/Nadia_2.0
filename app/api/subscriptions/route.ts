@@ -52,11 +52,8 @@ export async function DELETE(req: NextRequest) {
   try {
     const { id } = await req.json();
     const contextBrokerUrl = `${env.OCB_URL}/subscriptions/${id}`;
-    const requestOptions = {
-      method: "DELETE",
-    };
 
-    const response = await fetch(contextBrokerUrl, requestOptions);
+    const response = await axios.delete(contextBrokerUrl, { httpsAgent: agent });
     if (response.status === 204) {
       return NextResponse.json(
         { message: `Subscription ${id} deleted` },

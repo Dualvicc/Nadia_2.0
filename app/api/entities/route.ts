@@ -36,7 +36,7 @@ export async function DELETE(req: NextRequest) {
       const contextBrokerSubsURL = `${env.OCB_URL}/subscriptions/`;
       const subscriptionResponse = await axios.get(contextBrokerSubsURL, { httpsAgent: agent });
 
-      const subscriptions: Subscription[] = await subscriptionResponse.data.json();
+      const subscriptions: Subscription[] = await subscriptionResponse.data;
 
       for (const subscription of subscriptions) {
         const isAssociated = subscription.subject.entities.some(

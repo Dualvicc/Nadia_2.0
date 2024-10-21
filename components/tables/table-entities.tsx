@@ -62,12 +62,12 @@ export default function TableEntities({
     }
   
     async function handleCloseModalDeleteEntity() {
-      await deleteEntity(entityObj);
+      await deleteEntity(entityObj, false);
       setIsModalOpenDeleteEntity(false);
     }
   
     async function handleCloseModalDeleteEntityWithSubscriptions() {
-      await deleteEntityWithSubscriptions(entityObj);
+      await deleteEntityWithSubscriptions(entityObj, true);
       setIsModalOpenDeleteEntity(false);
     }
 

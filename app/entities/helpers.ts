@@ -60,9 +60,10 @@ export async function createSubscription(
 /**
  * Delete entity data and sends response to the backend
  * @param id Entity ID to set
+ * @param deleteSubscriptions Delete subscriptions(true = yes, false = no) to set
  * @returns A response of entity data body for the backend
  */
-export async function deleteEntity(id: string) {
+export async function deleteEntity(id: string, deleteSubscriptions: boolean) {
   const url = `/api/entities`;
 
   try {
@@ -71,7 +72,7 @@ export async function deleteEntity(id: string) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id }),
+      body: JSON.stringify({ id, deleteSubscriptions }),
     });
 
     if (!response.ok)
@@ -86,19 +87,19 @@ export async function deleteEntity(id: string) {
 /**
  * Delete entity data with their subscriptions and sends response to the backend
  * @param id Entity ID to set
+ * @param deleteSubscriptions Delete subscriptions(true = yes, false = no) to set
  * @returns A response of entity data body for the backend
  */
-export async function deleteEntityWithSubscriptions(id: string) {
-  // TODO: Handle the entity to delete like deleteEntity function from above
-  const url = `http://${location.hostname}:3004/api/deleteentitywithsubscriptions`;
+export async function deleteEntityWithSubscriptions(id: string, deleteSubscriptions: boolean) {
+  const url = `/api/entities`;
 
   try {
     const response = await fetch(url, {
-      method: "POST",
+      method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id }),
+      body: JSON.stringify({ id, deleteSubscriptions }),
     });
 
     if (!response.ok)
