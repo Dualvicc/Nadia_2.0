@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
+import IconButton from "@/components/buttons/iconButton";
 
 /**
  * Displays a subscription table component to display data
@@ -19,6 +20,8 @@ import { useState } from "react";
 export default function TableSubscriptions({ data }: { data: any }) {
   const [message, setMessage] = useState<string>("");
   const [subscriptionObj, setSubscriptionObj] = useState<any>(undefined);
+  const [isModalOpenDeleteSubscription, setIsModalOpenDeleteSubscription] =
+    useState<boolean>(false);
 
   function handleOpenModalDeleteSubscription(subscription: any) {
     return () => {
@@ -26,11 +29,17 @@ export default function TableSubscriptions({ data }: { data: any }) {
         `Do you wish to delete this subscription: ${subscription.id}?`
       );
       setSubscriptionObj(subscription.id);
+      setIsModalOpenDeleteSubscription(true);
     };
+  }
+
+  function handleCloseModalCancel() {
+    setIsModalOpenDeleteSubscription(false);
   }
 
   async function handleCloseModalDeleteSubscription() {
     await deleteSubscription(subscriptionObj);
+    setIsModalOpenDeleteSubscription(false);
   }
 
   let dataArray = [];
@@ -80,23 +89,29 @@ export default function TableSubscriptions({ data }: { data: any }) {
               <TableCell className="border border-gray-300 px-2">
                 {subscription.notification.lastNotification}
               </TableCell>
-              <TableCell className="border border-gray-300 px-2 flex justify-center py-2">
-                <Modal
-                  openFunction={handleOpenModalDeleteSubscription(subscription)}
-                  iconBtnModal={TrashIcon}
-                  iconBtnModalColor="blue"
-                  actionButton1={{
-                    function: handleCloseModalDeleteSubscription,
-                    title: "Delete subscription",
-                  }}
-                  message={message}
-                  title="Delete subscription"
+              <TableCell className="border border-gray-300 px-2">
+              <div className="flex justify-center gap-2 py-2">
+                <IconButton
+                  onClick={handleOpenModalDeleteSubscription(subscription)}
+                  icon={TrashIcon}
                 />
+              </div>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      <Modal
+        isOpen={isModalOpenDeleteSubscription}
+        onClose={handleCloseModalCancel}
+        actionButton1={{
+          function: handleCloseModalDeleteSubscription,
+          title: "Delete subscription",
+        }}
+        message={message}
+        title="Delete subscription"
+        cancelColorBtn="transparent"
+      />
     </div>
   );
 }
