@@ -1,3 +1,5 @@
+import { SendError } from "@/lib/errors";
+
 /**
  * Displays subscription data from the backend
  * @returns Subscription data
@@ -8,12 +10,12 @@ export async function getSubscriptions() {
   try {
     const response = await fetch(url);
 
-    if (!response.ok) throw new Error("Problems with the context broker");
+    if (!response.ok) throw new SendError("Problems with the context broker");
 
     const jsondata = await response.json();
     return jsondata;
   } catch (error) {
-    if (error instanceof Error) throw new Error("Server problems");
+    if (error instanceof Error) throw new SendError("Server problems");
   }
 }
 

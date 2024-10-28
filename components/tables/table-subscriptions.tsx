@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/table";
 import { useState } from "react";
 import IconButton from "@/components/buttons/iconButton";
+import { dataTimeText } from "@/lib/client/utils";
+import { toast } from "@/hooks/use-toast";
 
 /**
  * Displays a subscription table component to display data
@@ -38,9 +40,16 @@ export default function TableSubscriptions({ data }: { data: any }) {
   }
 
   async function handleCloseModalDeleteSubscription() {
-    await deleteSubscription(subscriptionObj);
+    const res: any = await deleteSubscription(subscriptionObj);
     setIsModalOpenDeleteSubscription(false);
-    window.location.reload();
+
+    if (res.ok) {
+      toast({
+        title: "Subscription deleted succesfully",
+        description: dataTimeText(),
+      });
+      window.location.reload();
+    }
   }
 
   let dataArray = [];
@@ -91,12 +100,12 @@ export default function TableSubscriptions({ data }: { data: any }) {
                 {subscription.notification.lastNotification}
               </TableCell>
               <TableCell className="border border-gray-300 px-2">
-              <div className="flex justify-center gap-2 py-2">
-                <IconButton
-                  onClick={handleOpenModalDeleteSubscription(subscription)}
-                  icon={TrashIcon}
-                />
-              </div>
+                <div className="flex justify-center gap-2 py-2">
+                  <IconButton
+                    onClick={handleOpenModalDeleteSubscription(subscription)}
+                    icon={TrashIcon}
+                  />
+                </div>
               </TableCell>
             </TableRow>
           ))}

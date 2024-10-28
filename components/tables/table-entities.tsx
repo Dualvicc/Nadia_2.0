@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/table";
 import { Modal } from "@/components/modal/modal";
 import IconButton from "@/components/buttons/iconButton";
+import { dataTimeText } from "@/lib/client/utils";
+import { toast } from "@/hooks/use-toast";
 
 /**
  * Displays an entity table component to display data
@@ -35,44 +37,63 @@ export default function TableEntities({
   const [isModalOpenCreateSubscription, setIsModalOpenCreateSubscription] =
     useState<boolean>(false);
 
-    function handleOpenModalCreateSubscription(entity: any) {
-      return () => {
-        setMessage(`Do you wish to create this subscription with ${entity.id}?`);
-        setEntityObj(entity);
-        setIsModalOpenCreateSubscription(true);
-      };
-    }
-  
-    function handleOpenModalDeleteEntity(entity: any) {
-      return () => {
-        setMessage(`Do you wish to delete this entity: ${entity.id}?`);
-        setEntityObj(entity.id);
-        setIsModalOpenDeleteEntity(true);
-      };
-    }
-  
-    function handleCloseModalCancel() {
-      setIsModalOpenDeleteEntity(false);
-      setIsModalOpenCreateSubscription(false);
-    }
-  
-    async function handleCloseModalCreateSubscription() {
-      await createSubscription(entityObj, webhookURL);
-      setIsModalOpenCreateSubscription(false);
+  function handleOpenModalCreateSubscription(entity: any) {
+    return () => {
+      setMessage(`Do you wish to create this subscription with ${entity.id}?`);
+      setEntityObj(entity);
+      setIsModalOpenCreateSubscription(true);
+    };
+  }
+
+  function handleOpenModalDeleteEntity(entity: any) {
+    return () => {
+      setMessage(`Do you wish to delete this entity: ${entity.id}?`);
+      setEntityObj(entity.id);
+      setIsModalOpenDeleteEntity(true);
+    };
+  }
+
+  function handleCloseModalCancel() {
+    setIsModalOpenDeleteEntity(false);
+    setIsModalOpenCreateSubscription(false);
+  }
+
+  async function handleCloseModalCreateSubscription() {
+    const res = await createSubscription(entityObj, webhookURL);
+    setIsModalOpenCreateSubscription(false);
+
+    if (res.ok) {
+      toast({
+        title: "Subscription created succesfully",
+        description: dataTimeText(),
+      });
       window.location.reload();
     }
-  
-    async function handleCloseModalDeleteEntity() {
-      await deleteEntity(entityObj, false);
-      setIsModalOpenDeleteEntity(false);
+  }
+
+  async function handleCloseModalDeleteEntity() {
+    const res: any = await deleteEntity(entityObj, false);
+    setIsModalOpenDeleteEntity(false);
+
+    if (res.ok) {
+      toast({
+        title: "Entity deleted succesfully",
+        description: dataTimeText(),
+      });
       window.location.reload();
     }
-  
-    async function handleCloseModalDeleteEntityWithSubscriptions() {
-      await deleteEntityWithSubscriptions(entityObj, true);
-      setIsModalOpenDeleteEntity(false);
-      window.location.reload();
-    }
+  }
+
+  async function handleCloseModalDeleteEntityWithSubscriptions() {
+    await deleteEntityWithSubscriptions(entityObj, true);
+    setIsModalOpenDeleteEntity(false);
+
+    toast({
+      title: "Entity with subscriptions deleted succesfully",
+      description: dataTimeText(),
+    });
+    window.location.reload();
+  }
 
   let dataArray = [];
   try {
@@ -101,29 +122,30 @@ export default function TableEntities({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {dataArray && dataArray.map((entity: any, index: number) => (
-            <TableRow className="bg-gray-100 hover:bg-blue-100" key={index}>
-              <TableCell className="border border-gray-300 px-2">
-                {entity.id}
-              </TableCell>
-              <TableCell className="border border-gray-300 px-2">
-                {entity.type}
-              </TableCell>
-              <TableCell className="border border-gray-300 px-2">
-                <div className="flex justify-center gap-2 py-2">
-                  <IconButton
-                    onClick={handleOpenModalCreateSubscription(entity)}
-                    icon={DocumentPlusIcon}
-                    color="blue"
-                  />
-                  <IconButton
-                    onClick={handleOpenModalDeleteEntity(entity)}
-                    icon={TrashIcon}
-                  />
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+          {dataArray &&
+            dataArray.map((entity: any, index: number) => (
+              <TableRow className="bg-gray-100 hover:bg-blue-100" key={index}>
+                <TableCell className="border border-gray-300 px-2">
+                  {entity.id}
+                </TableCell>
+                <TableCell className="border border-gray-300 px-2">
+                  {entity.type}
+                </TableCell>
+                <TableCell className="border border-gray-300 px-2">
+                  <div className="flex justify-center gap-2 py-2">
+                    <IconButton
+                      onClick={handleOpenModalCreateSubscription(entity)}
+                      icon={DocumentPlusIcon}
+                      color="blue"
+                    />
+                    <IconButton
+                      onClick={handleOpenModalDeleteEntity(entity)}
+                      icon={TrashIcon}
+                    />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
       <Modal

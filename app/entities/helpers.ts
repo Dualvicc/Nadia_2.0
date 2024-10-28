@@ -1,3 +1,5 @@
+import { SendError } from "@/lib/errors";
+
 /**
  * Displays entity data from the backend
  * @returns Entity data
@@ -7,12 +9,12 @@ export async function getEntities() {
   try {
     const response = await fetch(url);
 
-    if (!response.ok) throw new Error("Problems with the context broker");
+    if (!response.ok) throw new SendError("Context broker problems");
 
     const jsondata = await response.json();
     return jsondata;
   } catch (error) {
-    if (error instanceof Error) throw new Error("Server problems");
+    if (error instanceof Error) throw new SendError("Server problems");
   }
 }
 
@@ -52,7 +54,7 @@ export async function createSubscription(
     body: JSON.stringify(subscriptionPayload),
   });
 
-  if (!response.ok) throw new Error("Failed to send info to the backend");
+  if (!response.ok) throw new SendError("Failed to create the subscription");
 
   return response;
 }
@@ -76,7 +78,7 @@ export async function deleteEntity(id: string, deleteSubscriptions: boolean) {
     });
 
     if (!response.ok)
-      throw new Error(`Entity ${id} was not deleted successfully`);
+      throw new SendError(`Entity ${id} was not deleted successfully`);
 
     return response;
   } catch (error) {
@@ -90,7 +92,10 @@ export async function deleteEntity(id: string, deleteSubscriptions: boolean) {
  * @param deleteSubscriptions Delete subscriptions(true = yes, false = no) to set
  * @returns A response of entity data body for the backend
  */
-export async function deleteEntityWithSubscriptions(id: string, deleteSubscriptions: boolean) {
+export async function deleteEntityWithSubscriptions(
+  id: string,
+  deleteSubscriptions: boolean
+) {
   const url = `/api/entities`;
 
   try {
@@ -103,7 +108,7 @@ export async function deleteEntityWithSubscriptions(id: string, deleteSubscripti
     });
 
     if (!response.ok)
-      throw new Error(
+      throw new SendError(
         `Entity ${id} and their subscriptions were not deleted successfully`
       );
 
