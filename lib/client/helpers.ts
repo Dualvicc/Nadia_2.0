@@ -1,4 +1,5 @@
-import { ConnectionError, SendError } from "../errors";
+import { SendError } from "@/lib/errors";
+import { sanitizeValue } from "@/lib/client/utils";
 
 type DataTransformNgsi = {
   type: string;
@@ -25,26 +26,29 @@ export function isJSON(str: string): boolean {
  * Sends NGSI-LD data converted to JSON data to the server
  * @param url Server URL
  * @param data NGSI-LD data to set
- * @returns Response to the server
+ * @returns A response of entity data body for the backend
  */
-export async function sendNGSIJson(url: string, data: any) {
-  try {
-    const payload = {
-      entities: data,
-    };
-    const res = await fetch(url, {
+export async function sendNGSIJson(data: any) {
+  const url = `/api/entities`;
+
+  const entities = Array.isArray(data) ? data : [data];
+  var response: any;
+  console.log("entities -> " + JSON.stringify(entities));
+
+  for (const entity of entities) {
+    response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(entity, null, 2),
     });
-    if (!res.ok) {
-      throw new SendError("Error to create NGSI entities");
+
+    if (!response.ok) {
+      throw new SendError("Error when creating NGSI entity");
     }
-    return res;
-  } catch (error) {
-    throw new ConnectionError("Error to connect to Context Broker");
+  }
+
+  if ( response && response !== null && response !== undefined ) {
+    return response;
   }
 }
 
@@ -92,7 +96,10 @@ export function createNgsiLdJson(
       let ngsiLdObj: any = {};
 
       attrs.forEach((attr: string) => {
-        const value = searchValue(result, attr);
+        let value = searchValue(result, attr);
+        if (typeof value === "string") {
+          value = sanitizeValue(value);
+        }
         if (value !== undefined) {
           const attrObj = {
             type: typeof value,
@@ -123,7 +130,10 @@ export function createNgsiLdJson(
   let ngsiLdObj: any = {};
 
   attrs.forEach((attr: string) => {
-    const value = searchValue(json, attr);
+    let value = searchValue(json, attr);
+    if (typeof value === "string") {
+      value = sanitizeValue(value);
+    }
     if (value !== undefined) {
       const attrObj = {
         type: typeof value,
