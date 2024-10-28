@@ -28,7 +28,7 @@ export function dataTimeText() {
 }
 
 export function sanitizeValue(value: string) {
-  return value.replace(/"/g, "_").replace(/'/g, "_");
+  return value.replace(/"/g, "_").replace(/'/g, "_").replace(/`/g, "_");
 }
 
 export function isStringBlank(str: string): boolean {
