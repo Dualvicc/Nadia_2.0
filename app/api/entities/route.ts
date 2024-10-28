@@ -19,12 +19,42 @@ const agent = new https.Agent({ rejectUnauthorized: false });
 
 export async function GET() {
   try {
-    const contextBrokerUrl = `${env.OCB_URL}/entities/`;
+    const contextBrokerUrl = `${env.OCB_URL}/entities?limit=1000`;
 
     const response = await axios.get(contextBrokerUrl, { httpsAgent: agent });
     return NextResponse.json(response.data, { status: 200 });
   } catch (e) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const entData = await req.json();
+    const contextBrokerUrl = `${env.OCB_URL}/entities/`;
+    const response = await axios.post(contextBrokerUrl, entData, {
+      httpsAgent: agent,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.status === 201) {
+      return NextResponse.json(
+        { message: "Entity created" },
+        { status: 201 }
+      );
+    } else {
+      return NextResponse.json(
+        { message: "Something went wrong" },
+        { status: response.status }
+      );
+    }
+  } catch (e) {
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
 

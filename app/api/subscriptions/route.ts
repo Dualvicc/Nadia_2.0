@@ -9,7 +9,7 @@ const agent = new https.Agent({ rejectUnauthorized: false });
 
 export async function GET() {
   try {
-    const contextBrokerUrl = `${env.OCB_URL}/subscriptions/`;
+    const contextBrokerUrl = `${env.OCB_URL}/subscriptions?limit=1000`;
 
     const response = await axios.get(contextBrokerUrl, { httpsAgent: agent });
     return NextResponse.json(response.data, { status: 200 });
