@@ -59,16 +59,19 @@ export default function TableEntities({
     async function handleCloseModalCreateSubscription() {
       await createSubscription(entityObj, webhookURL);
       setIsModalOpenCreateSubscription(false);
+      window.location.reload();
     }
   
     async function handleCloseModalDeleteEntity() {
       await deleteEntity(entityObj, false);
       setIsModalOpenDeleteEntity(false);
+      window.location.reload();
     }
   
     async function handleCloseModalDeleteEntityWithSubscriptions() {
       await deleteEntityWithSubscriptions(entityObj, true);
       setIsModalOpenDeleteEntity(false);
+      window.location.reload();
     }
 
   let dataArray = [];

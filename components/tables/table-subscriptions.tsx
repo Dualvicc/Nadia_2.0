@@ -40,6 +40,7 @@ export default function TableSubscriptions({ data }: { data: any }) {
   async function handleCloseModalDeleteSubscription() {
     await deleteSubscription(subscriptionObj);
     setIsModalOpenDeleteSubscription(false);
+    window.location.reload();
   }
 
   let dataArray = [];

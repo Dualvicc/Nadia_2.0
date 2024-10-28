@@ -24,6 +24,9 @@ export default function Entities() {
     };
 
     fetchData();
+
+    const intervalId = setInterval(fetchData, 10000);
+    return () => clearInterval(intervalId);
   }, []);
 
   if (sort === "ID") {
