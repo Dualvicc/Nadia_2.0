@@ -1,39 +1,37 @@
 "use client";
 
 import React from "react";
-import { Button } from "../ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { sendNGSIJson } from "@/lib/client/helpers";
+import { Button } from "@/components/ui/button";
+import { isJSON, sendNGSIJson } from "@/lib/client/helpers";
 import { InvalidData } from "@/lib/errors";
+import { toast } from "@/hooks/use-toast";
+import { dataTimeText } from "@/lib/client/utils";
 
 export function SendData({ ngsildData }: { ngsildData: string }) {
-  const { toast } = useToast();
 
   async function sendDataToApi() {
     try {
-      if (!ngsildData) throw new InvalidData("Invalid Data");
+      if (!ngsildData || !isJSON(ngsildData)) {
+        throw new InvalidData("Invalid Data");
+      }
       const jsonData: any = JSON.parse(ngsildData);
-      const url = ""; // Poner la variable de entorno
-      const res = await sendNGSIJson(url, jsonData);
-      // const resJson = await res.json();
-      // if (res.status === 201) {
-      //   setMessage(resJson.message);
-      // }
+      const res = await sendNGSIJson(jsonData);
+
+      if (!res.ok) {
+        throw new Error(`Cannot create NGSI entities`);
+      }
+
       toast({
-        title: "Succesfull message",
-        description: "Friday, February 10, 2023 at 5:57 PM",
+        title: "Data sent succesfully",
+        description: dataTimeText(),
       });
     } catch (e) {
-      if (e instanceof Error)
+      if (e instanceof Error) {
         toast({
           title: e.message,
-          description: "Friday, February 10, 2023 at 5:57 PM",
+          description: dataTimeText(),
         });
-      // if (e instanceof SendError) setMessage(e.message);
-      // if (e instanceof ConnectionError) setMessage(e.message);
-      // if (e instanceof InvalidURL) setMessage(e.message);
-      // if (e instanceof InvalidData) setMessage(e.message);
-      // if (e instanceof Error) setMessage(e.message);
+      }
     }
   }
 
