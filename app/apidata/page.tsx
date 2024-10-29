@@ -3,7 +3,7 @@
 import { DataExtractForm } from "@/components/forms/data-extract-form";
 import { InputForm } from "@/components/forms/input-form";
 import { TextAreaContent } from "@/components/textarea-content/textarea-content";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SendData } from "@/components/buttons/send-data";
 import { apiFetch } from "./helpers";
 
@@ -15,10 +15,11 @@ export default function Page() {
     <div>
       <InputForm fetch={apiFetch} setData={setApiData} />
       <TextAreaContent
-        title="Api content"
+        title="Api content (Add/edit data here)"
         placeholder="Api data..."
         data={apiData}
         type="api"
+        onChange={setApiData}
       />
       <div>
         <p className="font-semibold text-lg">
@@ -31,6 +32,7 @@ export default function Page() {
         placeholder="Ngsi-ld..."
         data={ngsildData}
         type="ngsild"
+        readOnly={true}
       />
       <SendData ngsildData={ngsildData} />
     </div>
