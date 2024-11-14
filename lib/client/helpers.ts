@@ -3,7 +3,7 @@ import { sanitizeValue } from "@/lib/client/utils";
 
 type DataTransformNgsi = {
   type: string;
-  values: string;
+  values?: string;
   description: string;
   tags: string;
 };

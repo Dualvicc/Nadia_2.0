@@ -54,7 +54,7 @@ export async function fetchCSVToJSON(url: string) {
       });
     }
 
-    return JSON.stringify({ results }, null, 2);
+    return JSON.stringify(results, null, 2);
   } catch (e) {
     if (e instanceof InvalidURL) {
       throw new InvalidURL(e.message);
@@ -80,7 +80,7 @@ export function convertCSVtoJSON(dataContent: any) {
       results.push(obj);
     });
   }
-  return JSON.stringify({ results }, null, 2);
+  return JSON.stringify(results, null, 2);
 }
 
 /**
