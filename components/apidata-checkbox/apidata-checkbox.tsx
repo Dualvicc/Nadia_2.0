@@ -1,5 +1,60 @@
 import React, { useEffect, useState } from "react";
 
+const extractNestedKeys = (obj: any, path = "") => {
+  const result: Record<string, any> = {};
+  for (const key in obj) {
+    const fullPath = path ? `${path}.${key}` : key;
+    if (typeof obj[key] === "object" && obj[key] !== null && !Array.isArray(obj[key])) {
+      result[key] = extractNestedKeys(obj[key], fullPath);
+    } else {
+      result[key] = null;
+    }
+  }
+  return result;
+};
+
+const CheckboxTree = ({
+  data,
+  path = "",
+  selectedKeys,
+  handleCheckboxChange,
+}: {
+  data: Record<string, any>;
+  path?: string;
+  selectedKeys: Set<string>;
+  handleCheckboxChange: (key: string) => void;
+}) => {
+  return (
+    <div>
+      {Object.entries(data).map(([key, value]) => {
+        const fullPath = path ? `${path}.${key}` : key;
+        const isLeaf = value === null;
+
+        return (
+          <div key={fullPath} style={{ marginLeft: "20px" }}>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                checked={selectedKeys.has(fullPath)}
+                onChange={() => handleCheckboxChange(fullPath)}
+              />
+              <label className="ml-2">{key}</label>
+            </div>
+            {!isLeaf && (
+              <CheckboxTree
+                data={value}
+                path={fullPath}
+                selectedKeys={selectedKeys}
+                handleCheckboxChange={handleCheckboxChange}
+              />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 export default function ApiDataCheckboxes({
   apiData,
   selectedKeys,
@@ -9,47 +64,34 @@ export default function ApiDataCheckboxes({
   selectedKeys: Set<string>;
   setSelectedKeys: React.Dispatch<React.SetStateAction<Set<string>>>;
 }) {
-  const [uniqueKeys, setUniqueKeys] = useState<string[]>([]);
-
-  const extractUniqueKeys = (data: any, prefix = '') => {
-    const keys = new Set<string>();
-    const traverse = (obj: any, path: string) => {
-      if (typeof obj === 'object' && obj !== null) {
-        Object.keys(obj).forEach((key) => {
-          const fullPath = path ? `${path}.${key}` : key;
-          keys.add(fullPath);
-
-          const isArray = Array.isArray(obj[key]);
-          traverse(isArray ? obj[key][0] : obj[key], fullPath);
-        });
-      }
-    };
-  
-    traverse(data, prefix);
-    return keys;
-  };
+  const [nestedKeys, setNestedKeys] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (apiData) {
       const parsedData = JSON.parse(apiData);
       const dataArray = Array.isArray(parsedData) ? parsedData : [parsedData];
-
-      const allKeys : any[] = Array.from(
-        dataArray.reduce((acc, item) => {
-          const keys = extractUniqueKeys(item);
-          keys.forEach((key) => acc.add(key));
-          return acc;
-        }, new Set<string>())
+      const combinedKeys = dataArray.reduce(
+        (acc, item) => ({
+          ...acc,
+          ...extractNestedKeys(item),
+        }),
+        {}
       );
 
-      setUniqueKeys(allKeys);
+      setNestedKeys(combinedKeys);
 
-      setSelectedKeys((prevSelectedKeys) => {
-        if (prevSelectedKeys.size === 0) {
-          return new Set(allKeys);
+      const allKeys = new Set<string>();
+      const collectKeys = (obj: Record<string, any>, path = "") => {
+        for (const key in obj) {
+          const fullPath = path ? `${path}.${key}` : key;
+          allKeys.add(fullPath);
+          if (obj[key] !== null) {
+            collectKeys(obj[key], fullPath);
+          }
         }
-        return prevSelectedKeys;
-      });
+      };
+      collectKeys(combinedKeys);
+      setSelectedKeys(allKeys);
     }
   }, [apiData, setSelectedKeys]);
 
@@ -68,19 +110,12 @@ export default function ApiDataCheckboxes({
   return (
     <div>
       <h2>{"> API Data Values"}</h2>
-      {uniqueKeys.length > 0 ? (
-        uniqueKeys.map((key) => (
-          <div key={key} className="flex items-center">
-            <input
-              type="checkbox"
-              checked={selectedKeys.has(key)}
-              onChange={() => handleCheckboxChange(key)}
-            />
-            <label className="ml-2">
-              <strong>{key}</strong>
-            </label>
-          </div>
-        ))
+      {Object.keys(nestedKeys).length > 0 ? (
+        <CheckboxTree
+          data={nestedKeys}
+          selectedKeys={selectedKeys}
+          handleCheckboxChange={handleCheckboxChange}
+        />
       ) : (
         <strong>No data value available</strong>
       )}
