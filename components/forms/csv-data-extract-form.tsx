@@ -57,19 +57,24 @@ export function CSVDataExtractForm({
           "No data from which information can be extracted"
         );
 
+      if (!isJSON(apiData))
+        throw new InvalidData(
+          "This data is not a JSON. Not posible to extract information"
+        );
+
       const parsedData = JSON.parse(apiData);
-      const filteredData = parsedData.map((item: any) => {
-        const filteredItem: Record<string, any> = {};
-        selectedKeys.forEach((key) => {
-          if (key in item) filteredItem[key] = item[key];
-        });
-        return filteredItem;
-      });
+
+      if (selectedKeys.size === 0)
+        throw new InvalidData("No keys selected for transformation");
 
       const ngsi = createNgsiLdJson(
-        { ...data, values: "" },
+        {
+          type: data.type,
+          description: data.description,
+          tags: data.tags,
+        },
         Array.from(selectedKeys),
-        filteredData
+        parsedData
       );
       setApiData(JSON.stringify(ngsi, null, 2));
     } catch (e) {
@@ -88,7 +93,7 @@ export function CSVDataExtractForm({
           name="type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Entity type</FormLabel>
+              <FormLabel>Entity name & type</FormLabel>
               <FormControl>
                 <Input
                   placeholder="ParkingSpot"

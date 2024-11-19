@@ -3,13 +3,15 @@
 import { DataExtractForm } from "@/components/forms/data-extract-form";
 import { InputForm } from "@/components/forms/input-form";
 import { TextAreaContent } from "@/components/textarea-content/textarea-content";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { SendData } from "@/components/buttons/send-data";
 import { apiFetch } from "./helpers";
+import ApiDataCheckboxes from "@/components/apidata-checkbox/apidata-checkbox";
 
 export default function Page() {
   const [apiData, setApiData] = useState("");
   const [ngsildData, setNgsildData] = useState("");
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
 
   return (
     <div>
@@ -21,11 +23,16 @@ export default function Page() {
         type="api"
         onChange={setApiData}
       />
+      <ApiDataCheckboxes
+        apiData={apiData}
+        selectedKeys={selectedKeys}
+        setSelectedKeys={setSelectedKeys}
+      />
       <div>
         <p className="font-semibold text-lg">
           Select data to transform ngsi-ld
         </p>
-        <DataExtractForm apiData={apiData} setApiData={setNgsildData} />
+        <DataExtractForm apiData={apiData} setApiData={setNgsildData} selectedKeys={selectedKeys} />
       </div>
       <TextAreaContent
         title="Ngsi-ld content"

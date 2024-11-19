@@ -1,5 +1,4 @@
 import { SendError } from "@/lib/errors";
-import { sanitizeValue } from "@/lib/client/utils";
 
 type DataTransformNgsi = {
   type: string;
@@ -47,33 +46,9 @@ export async function sendNGSIJson(data: any) {
     }
   }
 
-  if ( response && response !== null && response !== undefined ) {
+  if (response && response !== null && response !== undefined) {
     return response;
   }
-}
-
-/**
- * Searches a value inside JSON
- * @param json JSON data
- * @param field Field selected
- * @returns A result of the value from a field in a JSON
- */
-function searchValue(json: any, field: string): any {
-  for (const key in json) {
-    if (json.hasOwnProperty(key)) {
-      const value = json[key];
-      if (key === field) {
-        return value;
-      }
-      if (typeof value === "object") {
-        const result = searchValue(value, field);
-        if (result !== undefined) {
-          return result;
-        }
-      }
-    }
-  }
-  return undefined;
 }
 
 /**
@@ -89,74 +64,60 @@ export function createNgsiLdJson(
   json: any
 ) {
   const ngsiLdArr: any[] = [];
-  let count: number = 1;
+  let count = 1;
 
-  if (json.hasOwnProperty("results") && Array.isArray(json.results)) {
-    json.results.forEach((result: any) => {
-      let ngsiLdObj: any = {};
+  const getValueByPath = (obj: any, path: string) => {
+    return path
+      .split(".")
+      .reduce(
+        (o, key) => (o && o[key] !== undefined ? o[key] : undefined),
+        obj
+      );
+  };
 
-      attrs.forEach((attr: string) => {
-        let value = searchValue(result, attr);
-        if (typeof value === "string") {
-          value = sanitizeValue(value);
-        }
-        if (value !== undefined) {
-          const attrObj = {
-            type: typeof value,
+  const processItem = (item: any) => {
+    const ngsiLdObj: any = {};
+
+    attrs.forEach((attr) => {
+      const value = getValueByPath(item, attr);
+      if (value !== undefined) {
+        if (attr === "id") {
+          // Preserve original value of 'id' into '_id_' to avoid issues
+          ngsiLdObj["_id_"] = {
+            type: typeof value === "object" ? "object" : typeof value,
             value: value,
           };
-          ngsiLdObj[attr] = attrObj;
+        } else {
+          ngsiLdObj[attr] = {
+            type: typeof value === "object" ? "object" : typeof value,
+            value: value,
+          };
         }
-      });
-      ngsiLdObj = {
-        id: `urn:ngsi-ld:${dataForm.type}:${count}`,
-        type: dataForm.type,
-        ...ngsiLdObj,
-        description: {
-          type: "string",
-          value: dataForm.description,
-        },
-        tags: {
-          type: "Array",
-          value: dataForm.tags,
-        },
-      };
-      count++;
-      ngsiLdArr.push(ngsiLdObj);
+      }
     });
-    return ngsiLdArr;
-  }
 
-  let ngsiLdObj: any = {};
-
-  attrs.forEach((attr: string) => {
-    let value = searchValue(json, attr);
-    if (typeof value === "string") {
-      value = sanitizeValue(value);
-    }
-    if (value !== undefined) {
-      const attrObj = {
-        type: typeof value,
-        value: value,
-      };
-      ngsiLdObj[attr] = attrObj;
-    }
-  });
-  ngsiLdObj = {
-    id: `urn:ngsi-ld:${dataForm.type}:${count}`,
-    type: dataForm.type,
-    ...ngsiLdObj,
-    description: {
-      type: "string",
-      value: dataForm.description,
-    },
-    tags: {
-      type: "Array",
-      value: dataForm.tags,
-    },
+    return {
+      id: `urn:ngsi-ld:${dataForm.type}:${count++}`,
+      type: dataForm.type,
+      ...ngsiLdObj,
+      description: {
+        type: "string",
+        value: dataForm.description,
+      },
+      tags: {
+        type: "Array",
+        value: dataForm.tags.split(",").map((tag) => tag.trim()),
+      },
+    };
   };
-  count++;
-  ngsiLdArr.push(ngsiLdObj);
+
+  if (Array.isArray(json)) {
+    json.forEach((item) => {
+      ngsiLdArr.push(processItem(item));
+    });
+  } else {
+    ngsiLdArr.push(processItem(json));
+  }
 
   return ngsiLdArr;
 }
