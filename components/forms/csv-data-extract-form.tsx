@@ -18,9 +18,9 @@ import {
 import { InvalidData } from "@/lib/errors";
 import { createNgsiLdJson, isJSON } from "@/lib/client/helpers";
 
-type DataExtractFormProps = {
+type CSVDataExtractFormProps = {
   apiData: string;
-  values?: string;
+  selectedKeys: Set<string>;
   setApiData: React.Dispatch<React.SetStateAction<string>>;
 };
 
@@ -28,9 +28,6 @@ const arrRegex = /^\w+(,\w+)*$/;
 
 const FormSchema = z.object({
   type: z.string().min(2, { message: "Must be 2 or more characters long" }),
-  values: z.string().regex(new RegExp(arrRegex), {
-    message: "Must be 1 or more items separated only by coma",
-  }),
   description: z
     .string()
     .min(2, { message: "Must be 2 or more characters long" }),
@@ -39,12 +36,15 @@ const FormSchema = z.object({
   }),
 });
 
-export function DataExtractForm({ apiData, setApiData }: DataExtractFormProps) {
+export function CSVDataExtractForm({
+  apiData,
+  selectedKeys,
+  setApiData,
+}: CSVDataExtractFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       type: "",
-      values: "",
       description: "",
       tags: "",
     },
@@ -52,18 +52,25 @@ export function DataExtractForm({ apiData, setApiData }: DataExtractFormProps) {
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      const valuesArr: string[] = data.values.split(",");
       if (!data)
         throw new InvalidData(
           "No data from which information can be extracted"
         );
 
-      if (!isJSON(apiData))
-        throw new InvalidData(
-          "This data is not a JSON. Not posible to extracted information"
-        );
+      const parsedData = JSON.parse(apiData);
+      const filteredData = parsedData.map((item: any) => {
+        const filteredItem: Record<string, any> = {};
+        selectedKeys.forEach((key) => {
+          if (key in item) filteredItem[key] = item[key];
+        });
+        return filteredItem;
+      });
 
-      const ngsi = createNgsiLdJson(data, valuesArr, JSON.parse(apiData));
+      const ngsi = createNgsiLdJson(
+        { ...data, values: "" },
+        Array.from(selectedKeys),
+        filteredData
+      );
       setApiData(JSON.stringify(ngsi, null, 2));
     } catch (e) {
       if (e instanceof InvalidData) setApiData(e.message);
@@ -81,27 +88,10 @@ export function DataExtractForm({ apiData, setApiData }: DataExtractFormProps) {
           name="type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Type</FormLabel>
+              <FormLabel>Entity type</FormLabel>
               <FormControl>
                 <Input
                   placeholder="ParkingSpot"
-                  {...field}
-                  className="bg-white"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="values"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Values</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Insert value1,value2..."
                   {...field}
                   className="bg-white"
                 />
