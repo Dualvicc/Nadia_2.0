@@ -10,17 +10,19 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button"; // Usa tu componente de botón personalizado
 
 type FieldData = {
   id: number;
-  fieldName: string;
-  fieldValue: string;
-  fieldType: string;
+  label: string;
+  type: string;
+  required: boolean;
 };
 
 const DynamicForm = () => {
   const methods = useForm();
   const [fields, setFields] = useState<FieldData[]>([]);
+  const [formStructure, setFormStructure] = useState<object[]>([]);
 
   const addField = () => {
     const newFieldIndex = fields.length;
@@ -28,87 +30,138 @@ const DynamicForm = () => {
       ...fields,
       {
         id: newFieldIndex,
-        fieldName: `fieldName-${newFieldIndex}`,
-        fieldValue: `fieldValue-${newFieldIndex}`,
-        fieldType: `fieldType-${newFieldIndex}`,
+        label: "",
+        type: "text",
+        required: false,
       },
     ]);
   };
 
   const removeField = (id: number) => {
     setFields(fields.filter((field) => field.id !== id));
-    methods.unregister(`fieldName-${id}`);
-    methods.unregister(`fieldValue-${id}`);
-    methods.unregister(`fieldType-${id}`);
+  };
+
+  const saveFormStructure = () => {
+    const structure = fields.map((field) => ({
+      label: field.label,
+      type: field.type,
+      required: field.required,
+    }));
+    setFormStructure(structure);
+    console.log("Form Structure:", JSON.stringify(structure, null, 2));
   };
 
   return (
     <Form {...methods}>
-      <form onSubmit={methods.handleSubmit((data) => console.log(data))}>
-        <div className="">
+      <form
+        onSubmit={methods.handleSubmit(() => saveFormStructure())}
+        className="p-6 bg-white rounded-lg shadow-md space-y-4"
+      >
+        <div className="space-y-6 max-h-[500px] overflow-y-auto">
           {fields.map((field, index) => (
             <React.Fragment key={field.id}>
-              <div className="flex items-center gap-2">
+              <div className="border p-4 rounded-lg bg-gray-50 space-y-4">
                 <FormItem>
-                  <FormLabel>{`Field Name ${index + 1}`}</FormLabel>
+                  <FormLabel className="font-semibold mb-1">{`Label for Field ${
+                    index + 1
+                  }`}</FormLabel>
                   <FormControl>
                     <Input
-                      className="border border-black"
+                      className="border border-gray-300 p-2 rounded-md w-full"
                       type="text"
-                      {...methods.register(field.fieldName, {
-                        required: `Field Name ${index + 1} is mandatory`,
-                      })}
+                      placeholder={`Enter label for Field ${index + 1}`}
+                      value={field.label}
+                      onChange={(e) =>
+                        setFields((prev) =>
+                          prev.map((f) =>
+                            f.id === field.id
+                              ? { ...f, label: e.target.value }
+                              : f
+                          )
+                        )
+                      }
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
 
                 <FormItem>
-                  <FormLabel>{`Field ${index + 1}`}</FormLabel>
+                  <FormLabel className="font-semibold mb-1">{`Type for Field ${
+                    index + 1
+                  }`}</FormLabel>
                   <FormControl>
-                    <Input
-                      className="border border-black"
-                      type="text"
-                      {...methods.register(field.fieldValue, {
-                        required: `Field ${index + 1} is mandatory`,
-                      })}
-                    />
+                    <select
+                      className="border border-gray-300 p-2 rounded-md w-full"
+                      value={field.type}
+                      onChange={(e) =>
+                        setFields((prev) =>
+                          prev.map((f) =>
+                            f.id === field.id
+                              ? { ...f, type: e.target.value }
+                              : f
+                          )
+                        )
+                      }
+                    >
+                      <option value="text">Text</option>
+                      <option value="number">Number</option>
+                      <option value="email">Email</option>
+                      <option value="date">Date</option>
+                    </select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
 
                 <FormItem>
-                  <FormLabel>{`Field Type ${index + 1}`}</FormLabel>
+                  <FormLabel className="font-semibold mb-1">{`Required for Field ${
+                    index + 1
+                  }`}</FormLabel>
                   <FormControl>
-                    <Input
-                      className="border border-black"
-                      type="text"
-                      {...methods.register(field.fieldType, {
-                        required: `Field Type ${index + 1} is mandatory`,
-                      })}
-                    />
+                    <div className="flex items-center gap-2 mt-1">
+                      <input
+                        type="checkbox"
+                        checked={field.required}
+                        onChange={(e) =>
+                          setFields((prev) =>
+                            prev.map((f) =>
+                              f.id === field.id
+                                ? { ...f, required: e.target.checked }
+                                : f
+                            )
+                          )
+                        }
+                        className="h-4 w-4"
+                      />
+                      <span className="text-sm text-gray-600">Required</span>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
 
-                <button
+                <Button
                   type="button"
                   onClick={() => removeField(field.id)}
-                  className="text-red-500 hover:text-red-700"
+                  variant="destructive"
+                  className="w-full mt-2"
                 >
-                  X
-                </button>
+                  Remove Field
+                </Button>
               </div>
             </React.Fragment>
           ))}
         </div>
-        <div>
-          <button type="button" onClick={addField}>
+        <div className="flex space-x-4 mt-4">
+          <Button type="button" onClick={addField} variant="default">
             Add Field
-          </button>
-          <button type="submit">Send</button>
+          </Button>
+          <Button type="submit" variant="default">
+            Save Form Structure
+          </Button>
         </div>
       </form>
+      <pre className="mt-6 p-4 border border-gray-300 bg-gray-100 rounded-lg">
+        {JSON.stringify(formStructure, null, 2)}
+      </pre>
     </Form>
   );
 };

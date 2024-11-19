@@ -3,7 +3,7 @@ import { sanitizeValue } from "@/lib/client/utils";
 
 type DataTransformNgsi = {
   type: string;
-  values?: string;
+  values: string;
   description: string;
   tags: string;
 };
@@ -47,7 +47,7 @@ export async function sendNGSIJson(data: any) {
     }
   }
 
-  if ( response && response !== null && response !== undefined ) {
+  if (response && response !== null && response !== undefined) {
     return response;
   }
 }
