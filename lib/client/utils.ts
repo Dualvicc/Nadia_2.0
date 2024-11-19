@@ -56,3 +56,41 @@ export function searchDataSubscriptions(str: string, arr: Array<any>) {
         .includes(str.toLocaleLowerCase())
   );
 }
+
+export function downloadJSON(data: string, filename: string) {
+  const blob = new Blob([data], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+export function filterJSONByKeys(data: any, selectedKeys: Set<string>): any {
+  const filterKeys = (obj: any, prefix = ""): any => {
+    if (typeof obj !== "object" || obj === null) return obj;
+
+    const filtered: any = Array.isArray(obj) ? [] : {};
+
+    Object.keys(obj).forEach((key) => {
+      const fullPath = prefix ? `${prefix}.${key}` : key;
+      if (selectedKeys.has(fullPath)) {
+        filtered[key] = obj[key];
+      } else if (typeof obj[key] === "object" && obj[key] !== null) {
+        const child = filterKeys(obj[key], fullPath);
+        if (Object.keys(child).length > 0) {
+          filtered[key] = child;
+        }
+      }
+    });
+
+    return filtered;
+  };
+
+  return Array.isArray(data)
+    ? data.map((item) => filterKeys(item))
+    : filterKeys(data);
+}

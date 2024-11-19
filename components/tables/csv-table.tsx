@@ -25,7 +25,7 @@ export function CSVTable({ data, title }: CSVTableProps) {
   try {
     if (data != undefined && data != "" && data != null) {
       dataArray = data;
-      console.log("dataArray: ", dataArray);
+      // console.log("dataArray: ", dataArray);
     }
   } catch (error) {
     if (error instanceof InvalidData) {

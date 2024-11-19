@@ -9,6 +9,7 @@ import React, { useState } from "react";
 import { fetchCSVToJSON } from "./helpers";
 import { CSVTable } from "@/components/tables/csv-table";
 import ApiDataCheckboxes from "@/components/apidata-checkbox/apidata-checkbox";
+import { GenerateJSONComponent } from "@/components/generate-json-component/generate-json-component";
 
 export default function Page() {
   const [jsonData, setJsonData] = useState("");
@@ -29,6 +30,10 @@ export default function Page() {
           apiData={jsonData}
           selectedKeys={selectedKeys}
           setSelectedKeys={setSelectedKeys}
+        />
+        <GenerateJSONComponent
+          jsonData={jsonData}
+          selectedKeys={selectedKeys}
         />
         <CSVDataExtractForm
           apiData={jsonData}

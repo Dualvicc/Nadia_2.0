@@ -33,7 +33,7 @@ export async function sendNGSIJson(data: any) {
 
   const entities = Array.isArray(data) ? data : [data];
   var response: any;
-  console.log("entities -> " + JSON.stringify(entities));
+  // console.log("entities -> " + JSON.stringify(entities));
 
   for (const entity of entities) {
     response = await fetch(url, {
