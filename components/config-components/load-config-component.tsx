@@ -11,7 +11,7 @@ export function LoadConfigComponent({ handleLoadConfig, errorLoad }: LoadConfigP
     <div className="grid w-full gap-1.5 mb-8">
       <Label className="font-semibold text-lg">Load config</Label>
       <Input type="file" accept=".json" onChange={handleLoadConfig} />
-      <p className="text-red-600">{errorLoad}</p>
+      {errorLoad && <p className="text-red-500">{errorLoad}</p>}
     </div>
   );
 }

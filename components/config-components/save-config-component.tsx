@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { TextAreaContent } from "@/components/textarea-content/textarea-content";
 
 export function SaveConfigComponent({
   configType,
@@ -41,9 +42,9 @@ export function SaveConfigComponent({
       const parsedData = {
         configName: configName,
         configType: configType,
-        jsonData: JSON.parse(jsonData),
-        csvData: configType == "csv" ? csvData : "",
         selectedKeys: Array.from(selectedKeys),
+        csvData: (configType == "csv") ? csvData : null,
+        jsonData: JSON.parse(jsonData),
       };
       setGeneratedJson(JSON.stringify(parsedData, null, 2));
       setError("");
@@ -70,12 +71,12 @@ export function SaveConfigComponent({
       />
       <Button onClick={generateJSONconfig}>Generate config</Button>
       {error && <p className="text-red-500">{error}</p>}
-      <pre
-        aria-placeholder="{config data...}"
-        className="mt-6 p-4 border border-gray-300 bg-gray-100 rounded-lg"
-      >
-        {generatedJson}
-      </pre>
+      <TextAreaContent
+        placeholder="{config data... }"
+        data={generatedJson}
+        type="jsonConfig"
+        readOnly={true}
+      />
       <Button
         onClick={() =>
           downloadJSON(generatedJson, `${configName || "config"}.json`)
