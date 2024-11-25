@@ -41,10 +41,16 @@ const CheckboxTree = ({
   selectedKeys: Set<string>;
   handleCheckboxChange: (key: string, isChecked: boolean) => void;
 }) => {
+  const getNodeName = (fullPath: string) => {
+    const segments = fullPath.split(".");
+    return segments[segments.length - 1];
+  };
+
   return (
     <div>
       {Object.entries(data).map(([key, value]) => {
         const fullPath = path ? `${path}.${key}` : key;
+        const nodeName = getNodeName(key);
         const isChecked = selectedKeys.has(fullPath);
 
         return (
@@ -57,7 +63,7 @@ const CheckboxTree = ({
                   handleCheckboxChange(fullPath, e.target.checked)
                 }
               />
-              <label className="ml-2">{key}</label>
+              <label className="ml-2">{nodeName}</label>
             </div>
             {value && (
               <CheckboxTree
