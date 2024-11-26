@@ -10,45 +10,48 @@ import { fetchCSVToJSON } from "./helpers";
 import { CSVTable } from "@/components/tables/csv-table";
 import ApiDataCheckboxes from "@/components/apidata-checkbox/apidata-checkbox";
 import { SaveConfigComponent } from "@/components/config-components/save-config-component";
-import { LoadConfigComponent } from "@/components/config-components/load-config-component";
+import SavedConfigs from "@/components/config-components/saved-configs";
 
 export default function Page() {
+  const [configData, setConfigData] = useState("");
+  const [savedConfigName, setSavedConfigData] = useState("");
   const [jsonData, setJsonData] = useState("");
   const [ngsildData, setNgsildData] = useState("");
   const [csvData, setCsvData] = useState("");
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
+  const [urlCsv, setUrlCsv] = useState("");
   const [errorLoad, setErrorLoad] = useState("");
 
-  const handleLoadConfig = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const loadedConfig = JSON.parse(e.target?.result as string);
-        if (loadedConfig.configType !== "csv") {
-          setErrorLoad("This config file is NOT for CSV");
-          return;
-        }
-
-        setIsConfigLoaded(true);
-        setSelectedKeys(new Set(loadedConfig.selectedKeys || []));
-
-        setJsonData(JSON.stringify(loadedConfig.jsonData || "", null, 2));
-        setCsvData(loadedConfig.csvData || "");
-        setErrorLoad("");
-      } catch (error) {
-        setErrorLoad("Error loading configuration: "+ error);
+  const handleLoadConfig = (configName: string) => {
+    try {
+      const loadedConfig = JSON.parse(localStorage.getItem(configName) || "{}");
+      if (!loadedConfig || loadedConfig.configType !== "csv") {
+        setErrorLoad("This config is NOT for CSV or doesn't exist.");
+        return;
       }
-    };
-    reader.readAsText(file);
+
+      setIsConfigLoaded(true);
+      setConfigData(JSON.stringify(loadedConfig, null, 2));
+      setJsonData(JSON.stringify(loadedConfig.jsonData || "", null, 2));
+      setCsvData(loadedConfig.csvData);
+      setSavedConfigData(loadedConfig.configName);
+      setUrlCsv(loadedConfig.url || "");
+      setSelectedKeys(new Set(loadedConfig.selectedKeys || []));
+      setErrorLoad("");
+    } catch (error) {
+      setErrorLoad("Error loading configuration: " + error);
+    }
   };
 
   return (
     <div>
-      <InputForm fetch={fetchCSVToJSON} setData={setJsonData} />
+      <InputForm
+        fetch={fetchCSVToJSON}
+        setData={setJsonData}
+        setUrl={setUrlCsv}
+        url={urlCsv}
+      />
       <InputFileCSV setCsvData={setCsvData} setJsonData={setJsonData} />
       <CSVTable title="CSV Content" data={csvData} />
       <div className="grid w-full gap-1.5 mb-8">
@@ -61,12 +64,15 @@ export default function Page() {
           setSelectedKeys={setSelectedKeys}
           isConfigLoaded={isConfigLoaded}
         />
-        <LoadConfigComponent handleLoadConfig={handleLoadConfig} errorLoad={errorLoad} />
+        <SavedConfigs handleLoadConfig={handleLoadConfig} configType="csv" />
         <SaveConfigComponent
           configType="csv"
+          url={urlCsv}
           jsonData={jsonData}
           csvData={csvData}
           selectedKeys={selectedKeys}
+          configData={configData}
+          savedConfigName={savedConfigName}
         />
         <CSVDataExtractForm
           apiData={jsonData}

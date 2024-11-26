@@ -1,4 +1,3 @@
-import { downloadJSON } from "@/lib/client/utils";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,25 +5,27 @@ import { useState } from "react";
 import { TextAreaContent } from "@/components/textarea-content/textarea-content";
 
 export function SaveConfigComponent({
+  configData,
+  savedConfigName,
   configType,
+  url,
+  selectedKeys,
   jsonData,
   csvData,
-  selectedKeys,
 }: {
+  configData?: string;
+  savedConfigName?: string;
   configType: "api" | "csv" | "form";
-  jsonData: string;
+  url?: string;
   csvData?: string;
+  jsonData: string;
   selectedKeys: Set<string>;
 }) {
   const [generatedJson, setGeneratedJson] = useState("");
   const [error, setError] = useState("");
   const [configName, setConfigName] = useState("");
 
-  const generateJSONconfig = () => {
-    if (!csvData && configType === "csv") {
-      setError("CSV data must be available to generate a configuration.");
-      return;
-    }
+  const saveToLocalStorage = () => {
     if (!jsonData) {
       setError(
         "Unable to generate the configuration, JSON data is not available."
@@ -42,14 +43,18 @@ export function SaveConfigComponent({
       const parsedData = {
         configName: configName,
         configType: configType,
+        url: url || "",
         selectedKeys: Array.from(selectedKeys),
-        csvData: (configType == "csv") ? csvData : null,
+        csvData: configType == "csv" ? csvData : null,
         jsonData: JSON.parse(jsonData),
       };
+      const storageKey = `apiConfig:${configName}`;
+      localStorage.setItem(storageKey, JSON.stringify(parsedData));
       setGeneratedJson(JSON.stringify(parsedData, null, 2));
       setError("");
+      window.location.reload();
     } catch (error) {
-      setError("Error generating JSON config: " + error);
+      setError("Error saving configuration: " + error);
     }
   };
 
@@ -64,27 +69,19 @@ export function SaveConfigComponent({
       <Label className="font-semibold">Config name:</Label>
       <Input
         type="text"
-        value={configName}
+        value={configName || savedConfigName}
         onChange={(e) => setConfigName(e.target.value)}
         className="border p-2 w-full"
         placeholder="Enter a name for the configuration"
       />
-      <Button onClick={generateJSONconfig}>Generate config</Button>
+      <Button onClick={saveToLocalStorage}>Save to Local Storage</Button>
       {error && <p className="text-red-500">{error}</p>}
       <TextAreaContent
         placeholder="{config data... }"
-        data={generatedJson}
+        data={generatedJson || configData}
         type="jsonConfig"
         readOnly={true}
       />
-      <Button
-        onClick={() =>
-          downloadJSON(generatedJson, `${configName || "config"}.json`)
-        }
-        disabled={!generatedJson}
-      >
-        Download config data
-      </Button>
     </div>
   );
 }

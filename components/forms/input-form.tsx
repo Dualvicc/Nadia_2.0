@@ -20,13 +20,15 @@ import {
 type InputFormProps = {
   fetch: (url: string) => Promise<any>;
   setData: React.Dispatch<React.SetStateAction<string>>;
+  setUrl: React.Dispatch<React.SetStateAction<string>>;
+  url: string;
 };
 
 const FormSchema = z.object({
   url: z.string().url(),
 });
 
-export function InputForm({ fetch, setData }: InputFormProps) {
+export function InputForm({ fetch, setData, setUrl, url }: InputFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -34,9 +36,14 @@ export function InputForm({ fetch, setData }: InputFormProps) {
     },
   });
 
+  React.useEffect(() => {
+    form.setValue("url", url);
+  }, [form, setUrl, url]);
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const apiData = await fetch(data.url);
     setData(JSON.stringify(apiData, null, 2));
+    setUrl(data.url);
   }
 
   return (
