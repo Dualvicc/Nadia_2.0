@@ -1,21 +1,31 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import GeneratedForm from "@/components/forms/generated-form";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import GeneratedForm from '@/components/forms/generated-form';
+import { TransformToNgsiLd } from '@/components/forms/form-data-extract-form';
 
 const DynamicFormPage = () => {
   const { id } = useParams();
   const [formStructure, setFormStructure] = useState<any>(null);
+  const [entities, setEntities] = useState<any[]>([]);
 
   useEffect(() => {
     const savedJson = localStorage.getItem(`form-${id}`);
+    const savedEntities = localStorage.getItem(`entities-${id}`);
+
     if (savedJson) {
       setFormStructure(JSON.parse(savedJson));
-    } else {
-      console.warn(`No form found for ID: ${id}`);
+    }
+
+    if (savedEntities) {
+      setEntities(JSON.parse(savedEntities));
     }
   }, [id]);
+
+  const handleEntitySave = (newEntities: any[]) => {
+    setEntities(newEntities);
+  };
 
   if (!formStructure) {
     return (
@@ -29,13 +39,23 @@ const DynamicFormPage = () => {
   }
 
   return (
-    <div>
+    <div className="flex flex-col gap-5 p-6 bg-white rounded-lg shadow-md">
       <GeneratedForm
         formId={formStructure.id}
         formName={formStructure.formName}
         fields={formStructure.data}
         tags={formStructure.tags}
+        onSaveEntities={handleEntitySave}
       />
+      {entities.length > 0 && (
+        <TransformToNgsiLd
+          formId={formStructure.id}
+          formName={formStructure.formName}
+          tags={formStructure.tags}
+          fields={formStructure.data}
+          responses={entities}
+        />
+      )}
     </div>
   );
 };

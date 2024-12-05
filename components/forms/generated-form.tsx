@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { z } from "zod";
+import * as React from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { z } from 'zod';
 import {
   Form,
   FormItem,
   FormLabel,
   FormControl,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 type FieldData = {
   label: string;
@@ -25,6 +25,7 @@ type GeneratedFormProps = {
   formName: string;
   fields: FieldData[];
   tags: string[];
+  onSaveEntities?: (entities: any[]) => void;
 };
 
 const GeneratedForm: React.FC<GeneratedFormProps> = ({
@@ -32,47 +33,68 @@ const GeneratedForm: React.FC<GeneratedFormProps> = ({
   formName,
   fields,
   tags,
+  onSaveEntities,
 }) => {
   const methods = useForm();
   const { toast } = useToast();
 
-  const [responses, setResponses] = React.useState<any>(
-    fields.reduce((acc, field) => {
-      acc[field.label] = [""];
-      return acc;
-    }, {} as Record<string, string[]>)
-  );
+  const [entities, setEntities] = React.useState<any[]>([]);
+  const [resultPreview, setResultPreview] = React.useState<any>({});
 
-  // Cargar respuestas desde localStorage
   React.useEffect(() => {
-    const savedFormData = localStorage.getItem(`responses-${formId}`);
-    if (savedFormData) {
-      const parsedData = JSON.parse(savedFormData);
-      setResponses(parsedData || {});
+    const savedEntities = localStorage.getItem(`entities-${formId}`);
+    if (savedEntities) {
+      setEntities(JSON.parse(savedEntities));
     }
   }, [formId]);
+
+  React.useEffect(() => {
+    setResultPreview({
+      formId,
+      formName,
+      tags,
+      fields,
+      entities,
+    });
+  }, [formId, formName, tags, fields, entities]);
 
   const generateZodSchema = () => {
     const schemaObject: Record<string, any> = {};
 
     fields.forEach((field) => {
       const zodType =
-        field.type === "number"
-          ? z.number().nonnegative("Value must be a positive number.")
-          : field.type === "email"
-          ? z.string().email("Please provide a valid email address.")
-          : field.type === "date"
+        field.type === 'number'
           ? z
               .string()
               .refine(
-                (val) => !isNaN(Date.parse(val)),
-                "Please provide a valid date."
+                (val) => !isNaN(Number(val)) && val.trim() !== '',
+                'Value must be a valid number and cannot be empty.'
               )
-          : z.string().min(1, `${field.label} is required.`);
+          : field.type === 'email'
+          ? z
+              .string()
+              .email('Please provide a valid email address.')
+              .refine((val) => val.trim() !== '', 'Email cannot be empty.')
+          : field.type === 'date'
+          ? z
+              .string()
+              .refine(
+                (val) => !isNaN(Date.parse(val)) && val.trim() !== '',
+                'Please provide a valid date and it cannot be empty.'
+              )
+          : z
+              .string()
+              .min(1, `${field.label} is required.`)
+              .refine(
+                (val) => val.trim() !== '',
+                `${field.label} cannot be empty.`
+              );
 
-      schemaObject[field.label] = z.array(zodType).nonempty({
-        message: `${field.label} must have at least one value.`,
-      });
+      schemaObject[field.label] = z
+        .string()
+        .refine((val) => val.trim() !== '', {
+          message: `${field.label} cannot be empty.`,
+        });
     });
 
     return z.object(schemaObject);
@@ -82,77 +104,71 @@ const GeneratedForm: React.FC<GeneratedFormProps> = ({
     const schema = generateZodSchema();
 
     try {
-      schema.parse(responses);
+      entities.forEach((entity) => {
+        schema.parse(entity);
+      });
 
-      const result = {
-        formId,
-        formName,
-        fields,
-        responses, // Solo se guardan las respuestas
-      };
+      localStorage.setItem(`entities-${formId}`, JSON.stringify(entities));
 
-      // Guardar respuestas en localStorage
-      localStorage.setItem(`responses-${formId}`, JSON.stringify(responses));
-
-      console.log("Form Submitted with Full Data:", result);
+      if (onSaveEntities) {
+        onSaveEntities(entities);
+      }
 
       toast({
-        title: "Form Submitted",
-        description: "Your responses have been successfully saved.",
-        variant: "default",
+        title: 'Entities Saved',
+        description: 'Your entities have been successfully saved.',
+        variant: 'default',
       });
     } catch (err: any) {
       if (err.errors) {
         err.errors.forEach((error: any) => {
           toast({
-            title: "Validation Error",
-            description: error.message || "Invalid input.",
-            variant: "destructive",
+            title: 'Validation Error',
+            description: error.message || 'Invalid input.',
+            variant: 'destructive',
           });
         });
       } else {
         toast({
-          title: "Unexpected Error",
-          description: "Something went wrong. Please try again.",
-          variant: "destructive",
+          title: 'Unexpected Error',
+          description: 'Something went wrong. Please try again.',
+          variant: 'destructive',
         });
       }
     }
   };
 
-  const handleAddResponse = (label: string) => {
-    setResponses((prev: any) => ({
-      ...prev,
-      [label]: [...prev[label], ""],
-    }));
+  const addNewEntity = () => {
+    const newEntity = fields.reduce((acc, field) => {
+      acc[field.label] = '';
+      return acc;
+    }, {} as Record<string, string>);
+    setEntities((prev) => [...prev, newEntity]);
   };
 
-  const handleRemoveResponse = (label: string, index: number) => {
-    setResponses((prev: any) => ({
-      ...prev,
-      [label]: prev[label].filter((_: void, i: number) => i !== index),
-    }));
-  };
-
-  const handleResponseChange = (
-    label: string,
+  const handleEntityChange = (
     index: number,
+    fieldLabel: string,
     value: string
   ) => {
-    setResponses((prev: any) => {
-      const updatedResponses = [...prev[label]];
-      updatedResponses[index] = value;
-      return { ...prev, [label]: updatedResponses };
+    setEntities((prev) => {
+      const updatedEntities = [...prev];
+      updatedEntities[index][fieldLabel] = value;
+      return updatedEntities;
     });
   };
 
+  const removeEntity = (index: number) => {
+    setEntities((prev) => prev.filter((_, i) => i !== index));
+  };
+
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
+    <div>
       <h2 className="text-2xl font-bold mb-4">{formName}</h2>
       <div className="mb-4">
         <h3 className="font-semibold">Tags:</h3>
         <ul className="flex flex-wrap gap-2 mt-2">
-          {tags && tags.length > 0 ? (
+          {tags.length > 0 ? (
             tags.map((tag, index) => (
               <li
                 key={index}
@@ -166,69 +182,64 @@ const GeneratedForm: React.FC<GeneratedFormProps> = ({
           )}
         </ul>
       </div>
+
       <Form {...methods}>
-        <form
-          onSubmit={methods.handleSubmit(onSubmit)}
-          className="space-y-6"
-          noValidate
-        >
-          {fields.map((field, index) => (
-            <div
-              key={index}
-              className="space-y-4 border p-4 rounded-lg bg-gray-50"
-            >
-              <FormLabel className="text-lg font-semibold">
-                {field.label}
-              </FormLabel>
-              {responses[field.label].map(
-                (response: string, responseIndex: number) => (
-                  <div key={responseIndex} className="flex items-center gap-4">
+        <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
+          <div className="flex flex-wrap gap-6 ">
+            {entities.map((entity, entityIndex) => (
+              <div
+                key={entityIndex}
+                className="border p-2 rounded-lg bg-gray-50 space-y-4"
+              >
+                <div className="text-lg font-semibold">
+                  Entity {entityIndex + 1}
+                </div>
+                {fields.map((field) => (
+                  <FormItem key={field.label}>
+                    <FormLabel>{field.label}</FormLabel>
                     <FormControl>
                       <Input
                         type={field.type}
                         placeholder={`Enter ${field.label}`}
-                        value={response}
+                        value={entity[field.label]}
                         onChange={(e) =>
-                          handleResponseChange(
+                          handleEntityChange(
+                            entityIndex,
                             field.label,
-                            responseIndex,
                             e.target.value
                           )
                         }
-                        className="w-full"
                       />
                     </FormControl>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={() =>
-                        handleRemoveResponse(field.label, responseIndex)
-                      }
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                )
-              )}
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => handleAddResponse(field.label)}
-                className="mt-2"
-              >
-                Add Response
-              </Button>
-            </div>
-          ))}
-          <Button type="submit" variant="default" className="mt-4">
-            Submit
-          </Button>
+                    <FormMessage />
+                  </FormItem>
+                ))}
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => removeEntity(entityIndex)}
+                >
+                  Remove Entity
+                </Button>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4">
+            <Button type="button" onClick={addNewEntity} variant="secondary">
+              Add Entity
+            </Button>
+          </div>
+          <div className="mt-4">
+            <Button type="submit" variant="default">
+              Save Entities
+            </Button>
+          </div>
         </form>
       </Form>
 
-      <div className="mt-6 p-4 border border-gray-300 bg-gray-100 rounded-lg">
-        <h3 className="font-semibold mb-2">Preview of Responses:</h3>
-        <pre>{JSON.stringify(responses, null, 2)}</pre>
+      <div className="mt-6 p-4 border border-gray-300 bg-gray-100 rounded-lg h-96 overflow-auto scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-transparent">
+        <h3 className="font-semibold mb-2">Preview of JSON Result:</h3>
+        <pre>{JSON.stringify(resultPreview, null, 2)}</pre>
       </div>
     </div>
   );
