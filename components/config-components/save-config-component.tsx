@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { TextAreaContent } from "@/components/textarea-content/textarea-content";
+import { DownloadConfig } from "@/components/config-components/download-config";
+import { PreBox } from "@/components/pre-box/pre-box";
 
 export function SaveConfigComponent({
   configData,
@@ -59,14 +61,16 @@ export function SaveConfigComponent({
   };
 
   return (
-    <div id="generateJSONconfigdiv" className="grid w-full gap-1.5 mb-8">
+    <div id="generateJSONconfigdiv" className="gap-1.5 mb-8">
       <Label
         htmlFor={`generated-jsonconfig-data`}
         className="font-semibold text-lg"
       >
         {"Save config"}
       </Label>
+      <br />
       <Label className="font-semibold">Config name:</Label>
+      <br />
       <Input
         type="text"
         value={configName || savedConfigName}
@@ -74,14 +78,11 @@ export function SaveConfigComponent({
         className="border p-2 w-full"
         placeholder="Enter a name for the configuration"
       />
-      <Button onClick={saveToLocalStorage}>Save to Local Storage</Button>
+      <br />
+      <DownloadConfig clickFunction={saveToLocalStorage} generatedJson={generatedJson || configData} configName={configName} />
+      <Button className="mr-2 hidden" onClick={saveToLocalStorage}>Save config</Button>
       {error && <p className="text-red-500">{error}</p>}
-      <TextAreaContent
-        placeholder="{config data... }"
-        data={generatedJson || configData}
-        type="jsonConfig"
-        readOnly={true}
-      />
+      <PreBox text={generatedJson || configData} />
     </div>
   );
 }

@@ -15,6 +15,7 @@ interface LoadConfigProps {
 
 const SavedConfigs: React.FC<LoadConfigProps> = ({ handleLoadConfig, configType }) => {
   const [savedConfigs, setSavedConfigs] = useState<SavedConfigDataSummary[]>([]);
+  const [disabledButtons, setDisabledButtons] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
 
@@ -40,6 +41,12 @@ const SavedConfigs: React.FC<LoadConfigProps> = ({ handleLoadConfig, configType 
       });
     
       setSavedConfigs(configs);
+
+      const initialDisabledState = configs.reduce(
+        (acc, config) => ({ ...acc, [config.storageKey]: false }),
+        {}
+      );
+      setDisabledButtons(initialDisabledState);
     };
 
     if (typeof window !== "undefined") {
@@ -47,12 +54,24 @@ const SavedConfigs: React.FC<LoadConfigProps> = ({ handleLoadConfig, configType 
     }
   }, [configType]);
 
+  const handleToggleDisable = (key: string) => {
+    setDisabledButtons((prevState) => ({
+      ...prevState,
+      [key]: !prevState[key],
+    }));
+  };
+
   const handleDeleteConfig = (storageKey: string) => {
     localStorage.removeItem(storageKey);
     console.log(`Config ${storageKey} deleted`);
     setSavedConfigs((prevConfigs) =>
       prevConfigs.filter((config) => config.storageKey !== storageKey)
     );
+    setDisabledButtons((prevState) => {
+      const newState = { ...prevState };
+      delete newState[storageKey];
+      return newState;
+    });
   };
 
   return (
@@ -67,17 +86,33 @@ const SavedConfigs: React.FC<LoadConfigProps> = ({ handleLoadConfig, configType 
               key={config.storageKey}
               className="flex gap-1 p-4 border rounded-xl"
             >
+              <h1>{config.configName}</h1>
               <Button
                 onClick={() => handleLoadConfig(config.storageKey)}
                 variant="default"
+                disabled={disabledButtons[config.storageKey]}
               >
-                {config.configName}
+                {"Edit"}
               </Button>
               <Button
                 onClick={() => handleDeleteConfig(config.storageKey)}
                 variant="destructive"
+                disabled={disabledButtons[config.storageKey]}
               >
                 Delete
+              </Button>
+              <Button
+                onClick={() => handleToggleDisable(config.storageKey)}
+                variant="outline"
+              >
+                {disabledButtons[config.storageKey] ? "Enable" : "Disable"}
+              </Button>
+              <Button
+                onClick={() => null}
+                variant="default"
+                disabled={disabledButtons[config.storageKey]}
+              >
+                Send data (not implemented yet)
               </Button>
             </div>
           ))}
