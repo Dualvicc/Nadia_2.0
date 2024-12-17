@@ -4,11 +4,13 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import GeneratedForm from '@/components/forms/generated-form';
 import { TransformToNgsiLd } from '@/components/forms/form-data-extract-form';
+import { SendData } from '@/components/buttons/send-data';
 
 const DynamicFormPage = () => {
   const { id } = useParams();
   const [formStructure, setFormStructure] = useState<any>(null);
   const [entities, setEntities] = useState<any[]>([]);
+  const [ngsiLdData, setNgsiLdData] = useState<any>(null);
 
   useEffect(() => {
     const savedJson = localStorage.getItem(`form-${id}`);
@@ -25,6 +27,10 @@ const DynamicFormPage = () => {
 
   const handleEntitySave = (newEntities: any[]) => {
     setEntities(newEntities);
+  };
+
+  const handleNgsiLdTransform = (transformedData: any) => {
+    setNgsiLdData(transformedData);
   };
 
   if (!formStructure) {
@@ -54,8 +60,12 @@ const DynamicFormPage = () => {
           tags={formStructure.tags}
           fields={formStructure.data}
           responses={entities}
+          onTransformComplete={handleNgsiLdTransform}
         />
       )}
+      <div>
+        <SendData ngsildData={ngsiLdData} />
+      </div>
     </div>
   );
 };
