@@ -1,12 +1,13 @@
-"use client";
-import React from "react";
+'use client';
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import React from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { useSession } from 'next-auth/react';
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Form,
   FormControl,
@@ -14,9 +15,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { InvalidData } from "@/lib/errors";
-import { createNgsiLdJson, isJSON } from "@/lib/client/helpers";
+} from '@/components/ui/form';
+import { InvalidData } from '@/lib/errors';
+import { createNgsiLdJson } from '@/lib/client/helpers';
 
 type CSVDataExtractFormProps = {
   apiData: string;
@@ -27,12 +28,12 @@ type CSVDataExtractFormProps = {
 const arrRegex = /^\w+(,\w+)*$/;
 
 const FormSchema = z.object({
-  type: z.string().min(2, { message: "Must be 2 or more characters long" }),
+  type: z.string().min(2, { message: 'Must be 2 or more characters long' }),
   description: z
     .string()
-    .min(2, { message: "Must be 2 or more characters long" }),
+    .min(2, { message: 'Must be 2 or more characters long' }),
   tags: z.string().regex(new RegExp(arrRegex), {
-    message: "Must be 1 or more items separated only by coma",
+    message: 'Must be 1 or more items separated only by comma',
   }),
 });
 
@@ -41,12 +42,15 @@ export function CSVDataExtractForm({
   selectedKeys,
   setApiData,
 }: CSVDataExtractFormProps) {
+  const { data: session } = useSession();
+  const userEmail = session?.user?.email ?? 'unknown-user';
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      type: "",
-      description: "",
-      tags: "",
+      type: '',
+      description: '',
+      tags: '',
     },
   });
 
@@ -54,7 +58,7 @@ export function CSVDataExtractForm({
     try {
       if (!data)
         throw new InvalidData(
-          "No data from which information can be extracted"
+          'No data from which information can be extracted'
         );
 
       const parsedData = JSON.parse(apiData);
@@ -67,7 +71,7 @@ export function CSVDataExtractForm({
       });
 
       const ngsi = createNgsiLdJson(
-        { ...data, values: "" },
+        { ...data, values: '', userId: userEmail },
         Array.from(selectedKeys),
         filteredData
       );
