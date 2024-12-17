@@ -236,11 +236,6 @@ const GeneratedForm: React.FC<GeneratedFormProps> = ({
           </div>
         </form>
       </Form>
-
-      <div className="mt-6 p-4 border border-gray-300 bg-gray-100 rounded-lg h-96 overflow-auto scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-transparent">
-        <h3 className="font-semibold mb-2">Preview of JSON Result:</h3>
-        <pre>{JSON.stringify(resultPreview, null, 2)}</pre>
-      </div>
     </div>
   );
 };
